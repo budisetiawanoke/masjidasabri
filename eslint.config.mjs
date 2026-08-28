@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Proyek Android native (Capacitor) — kode Java/Gradle/berkas hasil
+    // build, bukan bagian dari codebase Next.js yang di-lint di sini.
+    "android/**",
   ]),
 ]);
 

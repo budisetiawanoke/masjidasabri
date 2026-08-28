@@ -85,10 +85,26 @@ semua**.
   (XSS pada Kotak Saran, payload SQL-injection-like pada pencarian jamaah,
   percobaan eskalasi peran lewat request langsung ke rute pengguna).
 
+## Aplikasi Android (APK)
+
+Proyek Capacitor (`android/`) sudah dibuat dan **diverifikasi langsung**:
+APK debug berhasil di-build (`./gradlew assembleDebug`, JDK 21 + Android
+SDK lokal), diinstal ke Android Emulator sungguhan lewat `adb`, dan
+dikonfirmasi lewat tangkapan layar bahwa aplikasi tampil dengan benar
+(lambang & tema merek, jadwal sholat live dari Aladhan API, navigasi antar
+halaman berfungsi). Ikon & splash screen native memakai lambang yayasan
+(bukan logo generik Capacitor bawaan). Detail & cara build APK final: lihat
+[docs/ANDROID.md](ANDROID.md).
+
+Build uji coba tersebut mengarah ke URL tunnel sementara yang sudah
+dimatikan setelah verifikasi — **APK untuk dibagikan ke jamaah harus
+di-build ulang mengarah ke URL produksi sungguhan** setelah deploy (langkah
+satu perintah, lihat docs/ANDROID.md bagian "Membuat APK untuk distribusi").
+
 ## Yang Belum Dikerjakan / Kandidat Iterasi Berikutnya
 
 - Ekspor laporan keuangan ke Excel (PDF sudah ada; tabel web laporan bisa di-print via browser)
 - Notifikasi email/WhatsApp (`src/lib/notify.ts` belum dibuat — perlu kredensial provider dari yayasan)
 - Deploy produksi sungguhan ke Vercel + Neon/Vercel Postgres — kode & migrasi sudah siap (lihat [docs/DEPLOYMENT.md](DEPLOYMENT.md)), tinggal dieksekusi (perlu akun Vercel & database cloud milik yayasan)
-- Pembungkus Android (APK) — fondasi PWA sudah ada, tinggal dibungkus lewat Capacitor setelah ada URL produksi (lihat [docs/ANDROID.md](ANDROID.md))
+- Build ulang APK final mengarah ke URL produksi setelah deploy (satu perintah, lihat docs/ANDROID.md)
 - Rate limiter login masih berbasis memori proses — cukup untuk Vercel skala hobby/satu instance yang tidak restart sering, tapi tidak persisten lintas cold start serverless. Untuk jaminan penuh di produksi serverless, ganti ke penyimpanan bersama (mis. Upstash Redis, ada free tier).

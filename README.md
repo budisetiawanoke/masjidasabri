@@ -9,7 +9,8 @@ Lihat [docs/RESEARCH.md](docs/RESEARCH.md), [docs/ARCHITECTURE.md](docs/ARCHITEC
 dan [docs/PLAN.md](docs/PLAN.md) untuk riset produk, arsitektur, dan rencana
 pengembangan. [docs/STATUS.md](docs/STATUS.md) melacak status implementasi
 dan verifikasi terkini. [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) berisi
-panduan langkah-demi-langkah untuk deploy ke Vercel + database cloud gratis.
+panduan langkah-demi-langkah untuk deploy ke Vercel + database cloud gratis,
+dan [docs/ANDROID.md](docs/ANDROID.md) untuk membuat APK Android.
 
 ## Tumpukan Teknologi
 
@@ -19,6 +20,7 @@ panduan langkah-demi-langkah untuk deploy ke Vercel + database cloud gratis.
 - **Tailwind CSS v4** — token merek kustom (lihat `docs/ARCHITECTURE.md`)
 - **Vitest** (unit) + **Playwright** (E2E) untuk pengujian otomatis
 - **PWA** (installable, ikon adaptif Android, Add to Home Screen) — lihat `src/app/manifest.ts` & `public/sw.js`
+- **Capacitor** (Android) — pembungkus APK native, lihat [docs/ANDROID.md](docs/ANDROID.md)
 
 ## Menjalankan Secara Lokal
 
