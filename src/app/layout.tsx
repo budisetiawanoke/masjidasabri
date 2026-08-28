@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Fraunces } from "next/font/google";
+import { PwaRegister } from "@/components/PwaRegister";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -20,6 +21,15 @@ export const metadata: Metadata = {
   },
   description:
     "Situs resmi & sistem pengelolaan Yayasan Masjid ASABRI Jatiasih — jadwal sholat, laporan keuangan transparan, kegiatan, dan informasi pengurus periode 2026–2030.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Masjid ASABRI",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0F3D2E",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -29,6 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${jakarta.variable} ${display.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
+        <PwaRegister />
         {children}
       </body>
     </html>
