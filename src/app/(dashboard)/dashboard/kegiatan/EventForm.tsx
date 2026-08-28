@@ -1,0 +1,57 @@
+"use client";
+
+import { useActionState } from "react";
+import { FieldGroup, Input, Select, Textarea } from "@/components/ui/Field";
+import { Button } from "@/components/ui/Button";
+import { createEventAction } from "@/app/(dashboard)/dashboard/kegiatan/actions";
+import { initialActionState } from "@/lib/action-state";
+
+export function EventForm() {
+  const [state, formAction, pending] = useActionState(createEventAction, initialActionState);
+
+  return (
+    <form action={formAction} className="space-y-4">
+      {state.message && (
+        <p
+          className={`rounded-lg px-3 py-2 text-sm ${
+            state.ok ? "bg-brand-green-100 text-brand-green-900" : "bg-brand-terracotta-100 text-brand-terracotta-700"
+          }`}
+        >
+          {state.message}
+        </p>
+      )}
+      <FieldGroup label="Judul" htmlFor="title" error={state.fieldErrors?.title}>
+        <Input id="title" name="title" required />
+      </FieldGroup>
+      <FieldGroup label="Kategori" htmlFor="category" error={state.fieldErrors?.category}>
+        <Select id="category" name="category" defaultValue="KAJIAN">
+          <option value="KAJIAN">Kajian</option>
+          <option value="TPA">TPA</option>
+          <option value="PHBI">PHBI</option>
+          <option value="RAPAT">Rapat</option>
+          <option value="LAINNYA">Lainnya</option>
+        </Select>
+      </FieldGroup>
+      <FieldGroup label="Deskripsi" htmlFor="description" error={state.fieldErrors?.description}>
+        <Textarea id="description" name="description" required />
+      </FieldGroup>
+      <div className="grid grid-cols-2 gap-3">
+        <FieldGroup label="Mulai" htmlFor="startAt" error={state.fieldErrors?.startAt}>
+          <Input id="startAt" name="startAt" type="datetime-local" required />
+        </FieldGroup>
+        <FieldGroup label="Selesai (opsional)" htmlFor="endAt" error={state.fieldErrors?.endAt}>
+          <Input id="endAt" name="endAt" type="datetime-local" />
+        </FieldGroup>
+      </div>
+      <FieldGroup label="Lokasi" htmlFor="location" error={state.fieldErrors?.location}>
+        <Input id="location" name="location" placeholder="Aula Masjid ASABRI" />
+      </FieldGroup>
+      <FieldGroup label="Pemateri / Khatib" htmlFor="speaker" error={state.fieldErrors?.speaker}>
+        <Input id="speaker" name="speaker" />
+      </FieldGroup>
+      <Button type="submit" disabled={pending} className="w-full">
+        {pending ? "Menyimpan..." : "Tambah Kegiatan"}
+      </Button>
+    </form>
+  );
+}

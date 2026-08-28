@@ -1,0 +1,263 @@
+// Masjid ASABRI — skema data inti.
+// Dev: SQLite (file lokal). Produksi: ganti `provider` ke "postgresql" dan
+// set DATABASE_URL ke koneksi Postgres — skema ini kompatibel tanpa perubahan
+// struktural (lihat docs/ARCHITECTURE.md).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  BENDAHARA
+  JAMAAH
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(JAMAAH)
+  isActive      Boolean   @default(true)
+  memberId      String?   @unique
+  member        Member?   @relation(fields: [memberId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  transactionsRecorded   Transaction[]         @relation("RecordedBy")
+  transactionsApproved   Transaction[]         @relation("ApprovedBy")
+  transactionRevisions   TransactionRevision[]
+  auditLogs              AuditLog[]
+  suggestionsCreated     SuggestionTicket[]    @relation("SuggestionAuthor")
+  suggestionsHandled     SuggestionTicket[]    @relation("SuggestionHandler")
+  announcements          Announcement[]
+  events                 Event[]
+  inventoryItems         InventoryItem[]
+  maintenanceLogs        MaintenanceLog[]
+
+  @@index([role])
+}
+
+model FoundationProfile {
+  id              String   @id @default(cuid())
+  name            String   @default("Yayasan Masjid ASABRI Jatiasih")
+  shortName       String   @default("Masjid ASABRI")
+  periodLabel     String   @default("2026 – 2030")
+  address         String
+  city            String   @default("Bekasi")
+  latitude        Float    @default(-6.2734)
+  longitude       Float    @default(106.9925)
+  phone           String?
+  email           String?
+  bankName        String?
+  bankAccountNo   String?
+  bankAccountName String?
+  qrisImageUrl    String?
+  aboutText       String   @default("")
+  updatedAt       DateTime @updatedAt
+}
+
+model BoardMember {
+  id         String   @id @default(cuid())
+  name       String
+  position   String   // e.g. "Ketua Yayasan", "Bendahara"
+  periodLabel String  @default("2026 – 2030")
+  photoUrl   String?
+  order      Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+
+model Member {
+  id          String    @id @default(cuid())
+  fullName    String
+  gender      String?   // "L" | "P"
+  birthDate   DateTime?
+  address     String?
+  domicile    String?
+  phone       String?
+  email       String?
+  isVolunteer Boolean   @default(false)
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user         User?
+  transactions Transaction[]
+
+  @@index([domicile])
+}
+
+model TransactionCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique // Infaq, Sedekah, Zakat, Wakaf, Pembangunan, Operasional, ...
+  kind      String   // "MASUK" | "KELUAR"
+  isSystem  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  transactions Transaction[]
+}
+
+// Transaksi bersifat append-only untuk kolom keuangan inti (amount, kind, categoryId).
+// Koreksi dilakukan lewat TransactionRevision (riwayat), bukan overwrite langsung,
+// supaya laporan publik selalu bisa diaudit.
+model Transaction {
+  id            String    @id @default(cuid())
+  date          DateTime
+  categoryId    String
+  category      TransactionCategory @relation(fields: [categoryId], references: [id])
+  amount        Int       // dalam rupiah, integer (hindari float untuk uang)
+  description   String
+  memberId      String?
+  member        Member?   @relation(fields: [memberId], references: [id])
+  recordedById  String
+  recordedBy    User      @relation("RecordedBy", fields: [recordedById], references: [id])
+  status        String    @default("PENDING") // PENDING | APPROVED | VOID
+  approvedById  String?
+  approvedBy    User?     @relation("ApprovedBy", fields: [approvedById], references: [id])
+  approvedAt    DateTime?
+  voidReason    String?
+  attachmentUrl String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  revisions TransactionRevision[]
+
+  @@index([date])
+  @@index([status])
+  @@index([categoryId])
+}
+
+model TransactionRevision {
+  id            String   @id @default(cuid())
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  changedById   String
+  changedBy     User     @relation(fields: [changedById], references: [id])
+  beforeJson    String   // snapshot JSON sebelum perubahan
+  afterJson     String   // snapshot JSON sesudah perubahan
+  reason        String
+  createdAt     DateTime @default(now())
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String   // "KAJIAN" | "TPA" | "PHBI" | "RAPAT" | "LAINNYA"
+  startAt     DateTime
+  endAt       DateTime?
+  location    String?
+  speaker     String?
+  posterUrl   String?
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([startAt])
+}
+
+model Announcement {
+  id          String   @id @default(cuid())
+  title       String
+  body        String
+  isPinned    Boolean  @default(false)
+  publishedAt DateTime @default(now())
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+
+  @@index([publishedAt])
+}
+
+model InventoryItem {
+  id            String   @id @default(cuid())
+  name          String
+  category      String
+  condition     String   @default("BAIK") // BAIK | PERLU_PERBAIKAN | RUSAK
+  quantity      Int      @default(1)
+  location      String?
+  acquiredAt    DateTime?
+  notes         String?
+  responsibleId String?
+  responsible   User?    @relation(fields: [responsibleId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  maintenanceLogs MaintenanceLog[]
+}
+
+model MaintenanceLog {
+  id              String   @id @default(cuid())
+  itemId          String
+  item            InventoryItem @relation(fields: [itemId], references: [id])
+  description     String
+  cost            Int?
+  performedAt     DateTime
+  loggedById      String
+  loggedBy        User     @relation(fields: [loggedById], references: [id])
+  createdAt       DateTime @default(now())
+}
+
+model ZakatRecord {
+  id            String   @id @default(cuid())
+  type          String   // "FITRAH" | "MAAL"
+  payerName     String
+  payerContact  String?
+  familyCount   Int      @default(1)
+  amountRice    Float?   // kg beras (fitrah)
+  amountMoney   Int?     // rupiah
+  distributedTo String?
+  status        String   @default("DITERIMA") // DITERIMA | DISALURKAN
+  recordedAt    DateTime @default(now())
+}
+
+model QurbanRecord {
+  id           String   @id @default(cuid())
+  animalType   String   // "SAPI" | "KAMBING" | "DOMBA"
+  qurbanFor    String   // atas nama
+  contactPhone String?
+  sharesCount  Int      @default(1)
+  amountPaid   Int
+  status       String   @default("TERDAFTAR") // TERDAFTAR | LUNAS | DISEMBELIH | DIDISTRIBUSI
+  year         Int
+  recordedAt   DateTime @default(now())
+}
+
+model SuggestionTicket {
+  id           String   @id @default(cuid())
+  subject      String
+  message      String
+  category     String   @default("SARAN") // SARAN | PENGADUAN
+  isAnonymous  Boolean  @default(false)
+  authorId     String?
+  author       User?    @relation("SuggestionAuthor", fields: [authorId], references: [id])
+  contactInfo  String?
+  status       String   @default("BARU") // BARU | DITINDAKLANJUTI | SELESAI
+  response     String?
+  handledById  String?
+  handledBy    User?    @relation("SuggestionHandler", fields: [handledById], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  actor      User     @relation(fields: [actorId], references: [id])
+  action     String   // e.g. "TRANSACTION_CREATE", "USER_ROLE_CHANGE"
+  entityType String
+  entityId   String
+  metaJson   String?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
