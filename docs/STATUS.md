@@ -74,11 +74,12 @@ semua**.
   `test.db`) — termasuk pemisahan tugas (bendahara tidak bisa mengesahkan
   transaksinya sendiri), integritas jejak audit (koreksi tidak pernah
   menimpa data), dan pembatalan hanya oleh Super Admin.
-- **Playwright (24 test)**: navigasi publik, login (termasuk gagal & rate
+- **Playwright (26 test)**: navigasi publik, login (termasuk gagal & rate
   limit di batas), proteksi rute tanpa sesi, isolasi RBAC lintas 3 peran
   dengan akses URL langsung, alur bisnis inti (bendahara mencatat → super
-  admin mengesahkan), ekspor PDF (validasi magic bytes berkas), keamanan
-  endpoint upload (tanpa sesi, peran tanpa izin, tipe file di luar whitelist,
+  admin mengesahkan; pendaftaran zakat & kurban publik → tindak lanjut
+  admin), ekspor PDF (validasi magic bytes berkas), keamanan endpoint
+  upload (tanpa sesi, peran tanpa izin, tipe file di luar whitelist,
   percobaan path traversal lewat parameter kategori), dan uji adversarial
   (XSS pada Kotak Saran, payload SQL-injection-like pada pencarian jamaah,
   percobaan eskalasi peran lewat request langsung ke rute pengguna).
