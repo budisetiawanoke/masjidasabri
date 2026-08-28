@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Download } from "lucide-react";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { getMonthlyPublicReport, getBalanceSummary } from "@/server/finance/service";
 import { formatRupiah, monthLabel } from "@/lib/format";
@@ -65,8 +66,15 @@ export default async function LaporanKeuanganPage({
       </div>
 
       <Card className="mt-6">
-        <CardHeader>
+        <CardHeader className="flex items-center justify-between">
           <CardTitle>Rincian {monthLabel(year, month)}</CardTitle>
+          <a
+            href={`/api/laporan-keuangan/pdf?year=${year}&month=${month}`}
+            className="flex items-center gap-1.5 rounded-lg border border-brand-green-900/30 px-3 py-1.5 text-xs font-semibold text-brand-green-900 hover:bg-brand-green-100"
+          >
+            <Download className="h-3.5 w-3.5" aria-hidden />
+            Unduh PDF
+          </a>
         </CardHeader>
         <CardBody>
           {report.transactionCount === 0 ? (

@@ -16,15 +16,17 @@ semua**.
 | Auth & RBAC | Login kredensial, 4 peran, proteksi rute (middleware/proxy) + guard di setiap halaman dashboard + validasi ulang di setiap server action |
 | Keuangan | Catat transaksi, alur PENDING→APPROVED, pembatalan (void) dengan alasan, koreksi dengan jejak audit (before/after snapshot), kategori kustom, saldo real-time, laporan publik per bulan |
 | Jamaah | CRUD data jamaah, pencarian, riwayat transaksi per jamaah |
-| Struktur Pengurus | Tampil di halaman publik `/profil` |
+| Struktur Pengurus | CRUD penuh (nama, jabatan, periode, foto, urutan, aktif/nonaktif), tampil publik di `/profil` |
 | Kegiatan | CRUD penuh (tambah/ubah/hapus) kajian/TPA/PHBI/rapat, tampil publik & di jadwal sholat (khatib/kajian) |
 | Pengumuman | CRUD, sematkan di atas, tampil publik |
 | Jadwal Sholat | Live dari Aladhan API + fallback hisab lokal (algoritma posisi matahari sendiri) bila API tak terjangkau |
 | Inventaris | CRUD penuh aset + kondisi + lokasi, plus riwayat pemeliharaan (catat perbaikan & biaya per aset) |
 | Zakat & Kurban | Kalkulator publik (maal & fitrah), pendaftaran mandiri publik, admin menandai status/distribusi |
 | Kotak Saran | Kirim publik (bisa anonim), admin menanggapi, isolasi data (jamaah hanya lihat tiketnya sendiri) |
-| Pengaturan Yayasan | Super Admin mengubah profil publik, koordinat (untuk jadwal sholat), info rekening |
+| Pengaturan Yayasan | Super Admin mengubah profil publik, koordinat (untuk jadwal sholat), info rekening, gambar QRIS |
 | Manajemen Pengguna | Super Admin membuat akun, ubah peran/status aktif, reset kata sandi — dengan proteksi anti-lockout diri sendiri |
+| Unggah Berkas | `/api/upload` — foto pengurus, poster kegiatan, gambar QRIS, bukti transaksi. Disimpan lokal di `public/uploads/`, RBAC + whitelist MIME + nama berkas acak |
+| Ekspor PDF | Laporan keuangan bulanan bisa diunduh sebagai PDF (`@react-pdf/renderer`, dirender server-side) langsung dari halaman publik |
 
 ## Temuan & Perbaikan Selama Verifikasi
 
@@ -47,6 +49,11 @@ semua**.
    perkiraan visual.
 4. **Rate limiting login ditambahkan** proaktif (bukan dari temuan bug, tapi
    dari tinjauan ketahanan) — mencegah tebak-paksa kata sandi.
+5. **Bug validasi Zod ditemukan sebelum sempat dipakai** — beberapa field URL
+   gambar (`posterUrl`, `attachmentUrl`, `photoUrl`) memakai `.url()` yang
+   menolak path relatif hasil unggahan lokal (`/uploads/...`). Ditemukan saat
+   membangun fitur upload, diperbaiki dengan helper `looseUrlOrPath` sebelum
+   fitur tersebut sempat rilis dengan bug.
 
 ## Cakupan Pengujian Otomatis
 
@@ -56,15 +63,16 @@ semua**.
   (SQLite terpisah `test.db`) — termasuk pemisahan tugas (bendahara tidak
   bisa mengesahkan transaksinya sendiri), integritas jejak audit (koreksi
   tidak pernah menimpa data), dan pembatalan hanya oleh Super Admin.
-- **Playwright (16 test)**: navigasi publik, login (termasuk gagal & rate
+- **Playwright (21 test)**: navigasi publik, login (termasuk gagal & rate
   limit di batas), proteksi rute tanpa sesi, isolasi RBAC lintas 3 peran
-  dengan akses URL langsung, dan alur bisnis inti (bendahara mencatat →
-  super admin mengesahkan, terverifikasi tampil sebagai APPROVED).
+  dengan akses URL langsung, alur bisnis inti (bendahara mencatat → super
+  admin mengesahkan), ekspor PDF (validasi magic bytes berkas), dan keamanan
+  endpoint upload (tanpa sesi, peran tanpa izin, tipe file di luar whitelist,
+  percobaan path traversal lewat parameter kategori).
 
 ## Yang Belum Dikerjakan / Kandidat Iterasi Berikutnya
 
-- Ekspor laporan keuangan ke PDF/Excel (saat ini: tampilan tabel web + bisa di-print via browser)
+- Ekspor laporan keuangan ke Excel (PDF sudah ada; tabel web laporan bisa di-print via browser)
 - Notifikasi email/WhatsApp (`src/lib/notify.ts` belum dibuat — perlu kredensial provider dari yayasan)
-- Upload gambar (poster kegiatan, foto pengurus, QRIS) — field `posterUrl`/`photoUrl`/`qrisImageUrl` sudah ada di skema tapi belum ada UI unggah file (perlu keputusan storage: lokal vs S3-compatible)
 - Migrasi ke PostgreSQL untuk deployment produksi multi-instance (skema sudah kompatibel, tinggal ganti `provider` + `DATABASE_URL`)
-- Rate limiter login perlu diganti ke penyimpanan bersama jika di-deploy multi-instance/serverless
+- Rate limiter login & penyimpanan berkas unggahan (`public/uploads/`) sama-sama berbasis proses/filesystem lokal — cocok untuk single-server (VPS), TIDAK untuk platform serverless (mis. Vercel). Jika pindah ke sana, rate limiter perlu penyimpanan bersama (Redis) dan upload perlu object storage (S3-compatible).

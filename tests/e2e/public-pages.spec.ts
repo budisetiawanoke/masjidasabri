@@ -21,6 +21,21 @@ test.describe("Situs publik", () => {
     await expect(page.getByRole("heading", { name: /Rincian/ })).toBeVisible();
   });
 
+  test("tombol Unduh PDF menghasilkan berkas PDF valid berisi data periode yang sama", async ({ page, request }) => {
+    await page.goto("/laporan-keuangan?year=2026&month=8");
+    const downloadLink = page.getByRole("link", { name: "Unduh PDF" });
+    const href = await downloadLink.getAttribute("href");
+    expect(href).toContain("year=2026");
+    expect(href).toContain("month=8");
+
+    const res = await request.get(href!);
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toBe("application/pdf");
+    const body = await res.body();
+    expect(body.subarray(0, 4).toString("latin1")).toBe("%PDF"); // magic bytes berkas PDF valid
+    expect(body.byteLength).toBeGreaterThan(1000);
+  });
+
   test("halaman profil menampilkan struktur pengurus", async ({ page }) => {
     await page.goto("/profil");
     await expect(page.getByRole("heading", { name: "Profil Yayasan" })).toBeVisible();

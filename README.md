@@ -83,6 +83,11 @@ dari sesi — klien tidak pernah dipercaya. Lihat tabel lengkap di
 - **Rate limiting login** memakai memori proses ([src/lib/rate-limit.ts](src/lib/rate-limit.ts)) —
   cukup untuk deployment single-instance; untuk multi-instance/serverless
   ganti dengan penyimpanan bersama (mis. Redis).
+- **Berkas unggahan** (foto pengurus, poster kegiatan, QRIS, bukti transaksi)
+  disimpan di filesystem lokal `public/uploads/` ([src/lib/upload.ts](src/lib/upload.ts)) —
+  cocok untuk VPS/single-server, TIDAK untuk platform serverless (filesystem-nya
+  sementara/read-only). Endpoint `/api/upload` membatasi tipe MIME, ukuran
+  (5MB), dan peran pengunggah; nama berkas selalu diacak (bukan nama asli).
 - **3 kerentanan `npm audit` tersisa** berasal dari `@prisma/config` (tooling
   CLI Prisma, dipakai saat `prisma migrate`/`generate`, bukan bagian bundel
   runtime aplikasi) — perbaikan otomatis mensyaratkan downgrade ke Prisma versi
