@@ -51,3 +51,4 @@ next-env.d.ts
 # berkas yang diunggah pengguna saat runtime (lihat src/lib/upload.ts) —
 # bukan bagian dari source code, dan menumpuk seiring pemakaian aplikasi
 /public/uploads/
+*.pdf

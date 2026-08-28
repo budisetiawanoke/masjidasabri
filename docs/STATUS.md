@@ -54,21 +54,34 @@ semua**.
    menolak path relatif hasil unggahan lokal (`/uploads/...`). Ditemukan saat
    membangun fitur upload, diperbaiki dengan helper `looseUrlOrPath` sebelum
    fitur tersebut sempat rilis dengan bug.
+6. **Rate limiter login mengunci pengguna sah (ditemukan & diperbaiki)** —
+   desain awal menghitung SETIAP percobaan login (termasuk yang berhasil)
+   ke arah batas 10x/10menit, jadi pengguna yang login-logout berulang secara
+   normal (mis. saat pengujian, atau pengurus yang sering ganti perangkat)
+   bisa ikut terkunci walau kata sandinya benar. Ditemukan saat pengujian
+   E2E berulang menyebabkan login yang seharusnya sukses malah gagal.
+   Diperbaiki: hitungan sekarang hanya bertambah untuk percobaan yang
+   TERBUKTI GAGAL (`recordFailedAttempt`, dipanggil hanya di jalur
+   `AuthError`), login berhasil tidak pernah menyumbang ke batas. Dikunci
+   dengan `tests/unit/rate-limit.test.ts`.
 
 ## Cakupan Pengujian Otomatis
 
-- **Vitest (27 test)**: RBAC (`can`/`assertCan` untuk semua kombinasi
+- **Vitest (31 test)**: RBAC (`can`/`assertCan` untuk semua kombinasi
   peran×izin), kalkulator zakat, algoritma hisab (urutan waktu, rentang
-  wajar, determinisme), dan **service keuangan terhadap database nyata**
-  (SQLite terpisah `test.db`) — termasuk pemisahan tugas (bendahara tidak
-  bisa mengesahkan transaksinya sendiri), integritas jejak audit (koreksi
-  tidak pernah menimpa data), dan pembatalan hanya oleh Super Admin.
-- **Playwright (21 test)**: navigasi publik, login (termasuk gagal & rate
+  wajar, determinisme), rate limiter login (hanya kegagalan yang dihitung),
+  dan **service keuangan terhadap database nyata** (SQLite terpisah
+  `test.db`) — termasuk pemisahan tugas (bendahara tidak bisa mengesahkan
+  transaksinya sendiri), integritas jejak audit (koreksi tidak pernah
+  menimpa data), dan pembatalan hanya oleh Super Admin.
+- **Playwright (24 test)**: navigasi publik, login (termasuk gagal & rate
   limit di batas), proteksi rute tanpa sesi, isolasi RBAC lintas 3 peran
   dengan akses URL langsung, alur bisnis inti (bendahara mencatat → super
-  admin mengesahkan), ekspor PDF (validasi magic bytes berkas), dan keamanan
+  admin mengesahkan), ekspor PDF (validasi magic bytes berkas), keamanan
   endpoint upload (tanpa sesi, peran tanpa izin, tipe file di luar whitelist,
-  percobaan path traversal lewat parameter kategori).
+  percobaan path traversal lewat parameter kategori), dan uji adversarial
+  (XSS pada Kotak Saran, payload SQL-injection-like pada pencarian jamaah,
+  percobaan eskalasi peran lewat request langsung ke rute pengguna).
 
 ## Yang Belum Dikerjakan / Kandidat Iterasi Berikutnya
 
