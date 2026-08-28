@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Card, CardBody } from "@/components/ui/Card";
 import { getFoundationProfile } from "@/server/foundation/service";
 import { listBoardMembers } from "@/server/membership/service";
@@ -39,13 +40,24 @@ export default async function ProfilPage() {
         {board.map((member) => (
           <Card key={member.id}>
             <CardBody className="text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-green-100 font-display text-xl font-semibold text-brand-green-900">
-                {member.name
-                  .split(" ")
-                  .slice(0, 2)
-                  .map((w) => w[0])
-                  .join("")}
-              </div>
+              {member.photoUrl ? (
+                <Image
+                  src={member.photoUrl}
+                  alt={member.name}
+                  width={64}
+                  height={64}
+                  unoptimized
+                  className="mx-auto h-16 w-16 rounded-full object-cover"
+                />
+              ) : (
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-green-100 font-display text-xl font-semibold text-brand-green-900">
+                  {member.name
+                    .split(" ")
+                    .slice(0, 2)
+                    .map((w) => w[0])
+                    .join("")}
+                </div>
+              )}
               <p className="mt-3 font-semibold text-brand-green-900">{member.name}</p>
               <p className="text-sm text-foreground/70">{member.position}</p>
             </CardBody>

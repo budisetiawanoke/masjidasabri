@@ -16,6 +16,7 @@ type EventItem = {
   endAt: string | Date | null;
   location: string | null;
   speaker: string | null;
+  posterUrl: string | null;
 };
 
 function toLocalInputValue(date: string | Date): string {
@@ -77,6 +78,7 @@ export function EventList({ events }: { events: EventItem[] }) {
                   endAt: e.endAt ? toLocalInputValue(e.endAt) : "",
                   location: e.location,
                   speaker: e.speaker,
+                  posterUrl: e.posterUrl,
                 }}
                 onSaved={() => setEditingId(null)}
               />

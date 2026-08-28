@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { assertCan } from "@/lib/rbac";
 import { writeAuditLog } from "@/server/audit/log";
 import type { Role } from "@prisma/client";
-import type { MemberInput } from "@/server/membership/schema";
+import type { MemberInput, BoardMemberInput } from "@/server/membership/schema";
 
 type Actor = { id: string; role: Role };
 
@@ -76,4 +76,59 @@ export async function deleteMember(actor: Actor, id: string) {
 
 export async function listBoardMembers() {
   return prisma.boardMember.findMany({ where: { isActive: true }, orderBy: { order: "asc" } });
+}
+
+/** Termasuk anggota nonaktif — dipakai di dashboard admin agar bisa diaktifkan kembali. */
+export async function listAllBoardMembers() {
+  return prisma.boardMember.findMany({ orderBy: { order: "asc" } });
+}
+
+export async function createBoardMember(actor: Actor, input: BoardMemberInput) {
+  assertCan(actor.role, "MANAGE_BOARD");
+  const member = await prisma.boardMember.create({
+    data: {
+      name: input.name,
+      position: input.position,
+      periodLabel: input.periodLabel,
+      photoUrl: input.photoUrl || null,
+      order: input.order,
+    },
+  });
+  await writeAuditLog({ actorId: actor.id, action: "BOARD_MEMBER_CREATE", entityType: "BoardMember", entityId: member.id });
+  return member;
+}
+
+export async function updateBoardMember(actor: Actor, id: string, input: BoardMemberInput) {
+  assertCan(actor.role, "MANAGE_BOARD");
+  const member = await prisma.boardMember.update({
+    where: { id },
+    data: {
+      name: input.name,
+      position: input.position,
+      periodLabel: input.periodLabel,
+      photoUrl: input.photoUrl || null,
+      order: input.order,
+    },
+  });
+  await writeAuditLog({ actorId: actor.id, action: "BOARD_MEMBER_UPDATE", entityType: "BoardMember", entityId: member.id });
+  return member;
+}
+
+export async function setBoardMemberActive(actor: Actor, id: string, isActive: boolean) {
+  assertCan(actor.role, "MANAGE_BOARD");
+  const member = await prisma.boardMember.update({ where: { id }, data: { isActive } });
+  await writeAuditLog({
+    actorId: actor.id,
+    action: "BOARD_MEMBER_SET_ACTIVE",
+    entityType: "BoardMember",
+    entityId: id,
+    meta: { isActive },
+  });
+  return member;
+}
+
+export async function deleteBoardMember(actor: Actor, id: string) {
+  assertCan(actor.role, "MANAGE_BOARD");
+  await prisma.boardMember.delete({ where: { id } });
+  await writeAuditLog({ actorId: actor.id, action: "BOARD_MEMBER_DELETE", entityType: "BoardMember", entityId: id });
 }

@@ -19,6 +19,7 @@ type Tx = {
   category: { name: string; kind: string };
   recordedBy: { name: string };
   approvedBy: { name: string } | null;
+  attachmentUrl: string | null;
 };
 
 const STATUS_TONE: Record<string, "gold" | "green" | "terracotta"> = {
@@ -83,6 +84,16 @@ export function TransactionList({ transactions, role }: { transactions: Tx[]; ro
                 {formatDate(tx.date)} · dicatat oleh {tx.recordedBy.name}
                 {tx.approvedBy && ` · disahkan oleh ${tx.approvedBy.name}`}
               </p>
+              {tx.attachmentUrl && (
+                <a
+                  href={tx.attachmentUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-1 inline-block text-xs text-brand-green-700 underline underline-offset-2"
+                >
+                  Lihat bukti transaksi
+                </a>
+              )}
             </div>
             <div className="text-right">
               <p

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Emblem } from "@/components/brand/Emblem";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { LinkButton } from "@/components/ui/Button";
@@ -148,7 +149,7 @@ export default async function HomePage() {
       {profile.bankAccountNo && (
         <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
           <Card>
-            <CardBody className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <CardBody className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-display text-lg font-semibold text-brand-green-900">Salurkan Infaq & Donasi</p>
                 <p className="mt-1 text-sm text-foreground/70">
@@ -160,7 +161,17 @@ export default async function HomePage() {
                   — {profile.bankAccountNo} a.n. {profile.bankAccountName}
                 </p>
               </div>
-              <LinkButton href="/kotak-saran" variant="outline">
+              {profile.qrisImageUrl && (
+                <Image
+                  src={profile.qrisImageUrl}
+                  alt="QRIS Yayasan Masjid ASABRI"
+                  width={140}
+                  height={140}
+                  unoptimized
+                  className="h-36 w-36 shrink-0 rounded-lg border border-border-subtle object-contain"
+                />
+              )}
+              <LinkButton href="/kotak-saran" variant="outline" className="shrink-0">
                 Butuh bantuan konfirmasi?
               </LinkButton>
             </CardBody>

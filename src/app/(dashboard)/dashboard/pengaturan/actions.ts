@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireActor } from "@/lib/require-actor";
 import { updateFoundationProfile } from "@/server/foundation/service";
 import { zodErrorToFieldErrors, errorMessage, type ActionState } from "@/lib/action-state";
+import { looseUrlOrPath } from "@/lib/zod-helpers";
 
 const profileSchema = z.object({
   name: z.string().trim().min(3).max(200),
@@ -19,6 +20,7 @@ const profileSchema = z.object({
   bankName: z.string().trim().max(100).optional().nullable(),
   bankAccountNo: z.string().trim().max(50).optional().nullable(),
   bankAccountName: z.string().trim().max(150).optional().nullable(),
+  qrisImageUrl: looseUrlOrPath,
   aboutText: z.string().trim().max(3000),
 });
 
@@ -36,13 +38,18 @@ export async function updateFoundationProfileAction(_prev: ActionState, formData
     bankName: formData.get("bankName") || undefined,
     bankAccountNo: formData.get("bankAccountNo") || undefined,
     bankAccountName: formData.get("bankAccountName") || undefined,
+    qrisImageUrl: formData.get("qrisImageUrl") || undefined,
     aboutText: formData.get("aboutText"),
   });
   if (!parsed.success) return { ok: false, fieldErrors: zodErrorToFieldErrors(parsed.error) };
 
   try {
     const actor = await requireActor();
-    await updateFoundationProfile(actor, { ...parsed.data, email: parsed.data.email || null });
+    await updateFoundationProfile(actor, {
+      ...parsed.data,
+      email: parsed.data.email || null,
+      qrisImageUrl: parsed.data.qrisImageUrl || null,
+    });
     revalidatePath("/dashboard/pengaturan");
     revalidatePath("/");
     revalidatePath("/profil");

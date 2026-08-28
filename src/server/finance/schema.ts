@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { looseUrlOrPath } from "@/lib/zod-helpers";
 
 export const createTransactionSchema = z.object({
   date: z.coerce.date(),
@@ -6,7 +7,7 @@ export const createTransactionSchema = z.object({
   amount: z.coerce.number().int().positive("Nominal harus lebih dari 0"),
   description: z.string().trim().min(3, "Keterangan minimal 3 karakter").max(500),
   memberId: z.string().optional().nullable(),
-  attachmentUrl: z.string().url().optional().nullable().or(z.literal("")),
+  attachmentUrl: looseUrlOrPath,
 });
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;
 

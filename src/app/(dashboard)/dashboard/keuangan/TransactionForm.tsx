@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { FieldGroup, Input, Select, Textarea } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
+import { FileUpload } from "@/components/ui/FileUpload";
 import { createTransactionAction } from "@/app/(dashboard)/dashboard/keuangan/actions";
 import { initialActionState } from "@/lib/action-state";
 
@@ -10,10 +11,22 @@ type Category = { id: string; name: string; kind: string };
 
 export function TransactionForm({ categories }: { categories: Category[] }) {
   const [state, formAction, pending] = useActionState(createTransactionAction, initialActionState);
+  const [formKey, setFormKey] = useState(0);
+  const [lastHandledState, setLastHandledState] = useState(state);
   const today = new Date().toISOString().slice(0, 10);
 
+  // Setelah tersimpan, form (termasuk lampiran yang sudah diunggah) di-reset
+  // total dengan me-remount — mencegah bendahara tanpa sengaja memakai ulang
+  // lampiran/nilai transaksi sebelumnya untuk transaksi berikutnya. Disesuaikan
+  // langsung saat render (bukan lewat useEffect) mengikuti pola resmi React
+  // untuk "menyesuaikan state ketika sebuah nilai berubah".
+  if (state !== lastHandledState) {
+    setLastHandledState(state);
+    if (state.ok) setFormKey((k) => k + 1);
+  }
+
   return (
-    <form action={formAction} className="space-y-4">
+    <form key={formKey} action={formAction} className="space-y-4">
       {state.message && (
         <p
           className={`rounded-lg px-3 py-2 text-sm ${
@@ -49,6 +62,13 @@ export function TransactionForm({ categories }: { categories: Category[] }) {
       <FieldGroup label="Keterangan" htmlFor="description" error={state.fieldErrors?.description}>
         <Textarea id="description" name="description" required />
       </FieldGroup>
+      <FileUpload
+        name="attachmentUrl"
+        label="Bukti Transaksi (opsional)"
+        category="transactions"
+        accept="image/jpeg,image/png,image/webp,application/pdf"
+        hint="Foto struk/bukti transfer atau PDF, maks. 5MB"
+      />
       <Button type="submit" disabled={pending} className="w-full">
         {pending ? "Menyimpan..." : "Catat Transaksi"}
       </Button>

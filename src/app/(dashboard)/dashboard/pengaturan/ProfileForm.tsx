@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { FieldGroup, Input, Textarea } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
+import { FileUpload } from "@/components/ui/FileUpload";
 import { updateFoundationProfileAction } from "@/app/(dashboard)/dashboard/pengaturan/actions";
 import { initialActionState } from "@/lib/action-state";
 
@@ -19,6 +20,7 @@ type Profile = {
   bankName: string | null;
   bankAccountNo: string | null;
   bankAccountName: string | null;
+  qrisImageUrl: string | null;
   aboutText: string;
 };
 
@@ -80,6 +82,13 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           <Input id="bankAccountName" name="bankAccountName" defaultValue={profile.bankAccountName ?? ""} />
         </FieldGroup>
       </div>
+      <FileUpload
+        name="qrisImageUrl"
+        label="Gambar QRIS (opsional)"
+        category="foundation"
+        defaultValue={profile.qrisImageUrl}
+        hint="Diunggah manual dari QRIS resmi yayasan — bukan proses pembayaran otomatis, hanya gambar untuk dipindai jamaah."
+      />
       <FieldGroup label="Tentang Yayasan" htmlFor="aboutText" error={state.fieldErrors?.aboutText}>
         <Textarea id="aboutText" name="aboutText" defaultValue={profile.aboutText} className="min-h-40" required />
       </FieldGroup>

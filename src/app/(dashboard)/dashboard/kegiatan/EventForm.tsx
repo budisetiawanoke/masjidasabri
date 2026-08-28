@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { FieldGroup, Input, Select, Textarea } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
+import { FileUpload } from "@/components/ui/FileUpload";
 import { createEventAction, updateEventAction } from "@/app/(dashboard)/dashboard/kegiatan/actions";
 import { initialActionState } from "@/lib/action-state";
 
@@ -15,6 +16,7 @@ type EventDefaults = {
   endAt?: string | null;
   location?: string | null;
   speaker?: string | null;
+  posterUrl?: string | null;
 };
 
 export function EventForm({ defaults, onSaved }: { defaults?: EventDefaults; onSaved?: () => void }) {
@@ -67,6 +69,7 @@ export function EventForm({ defaults, onSaved }: { defaults?: EventDefaults; onS
       <FieldGroup label="Pemateri / Khatib" htmlFor="speaker" error={state.fieldErrors?.speaker}>
         <Input id="speaker" name="speaker" defaultValue={defaults?.speaker ?? ""} />
       </FieldGroup>
+      <FileUpload name="posterUrl" label="Poster (opsional)" category="events" defaultValue={defaults?.posterUrl} />
       <Button type="submit" disabled={pending} className="w-full">
         {pending ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Tambah Kegiatan"}
       </Button>

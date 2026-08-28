@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { looseUrlOrPath } from "@/lib/zod-helpers";
 
 export const eventSchema = z.object({
   title: z.string().trim().min(3).max(150),
@@ -8,7 +9,7 @@ export const eventSchema = z.object({
   endAt: z.coerce.date().optional().nullable(),
   location: z.string().trim().max(200).optional().nullable(),
   speaker: z.string().trim().max(150).optional().nullable(),
-  posterUrl: z.string().url().optional().nullable().or(z.literal("")),
+  posterUrl: looseUrlOrPath,
 });
 export type EventInput = z.infer<typeof eventSchema>;
 
