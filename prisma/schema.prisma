@@ -1,14 +1,15 @@
 // Masjid ASABRI — skema data inti.
-// Dev: SQLite (file lokal). Produksi: ganti `provider` ke "postgresql" dan
-// set DATABASE_URL ke koneksi Postgres — skema ini kompatibel tanpa perubahan
-// struktural (lihat docs/ARCHITECTURE.md).
+// PostgreSQL di semua lingkungan (dev lokal via Homebrew, test lokal via
+// database Postgres terpisah, produksi via Neon/Vercel Postgres) — supaya
+// perilaku database yang diuji secara lokal benar-benar sama dengan yang
+// dipakai di produksi (lihat docs/ARCHITECTURE.md).
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

@@ -25,7 +25,8 @@ semua**.
 | Kotak Saran | Kirim publik (bisa anonim), admin menanggapi, isolasi data (jamaah hanya lihat tiketnya sendiri) |
 | Pengaturan Yayasan | Super Admin mengubah profil publik, koordinat (untuk jadwal sholat), info rekening, gambar QRIS |
 | Manajemen Pengguna | Super Admin membuat akun, ubah peran/status aktif, reset kata sandi — dengan proteksi anti-lockout diri sendiri |
-| Unggah Berkas | `/api/upload` — foto pengurus, poster kegiatan, gambar QRIS, bukti transaksi. Disimpan lokal di `public/uploads/`, RBAC + whitelist MIME + nama berkas acak |
+| Unggah Berkas | `/api/upload` — foto pengurus, poster kegiatan, gambar QRIS, bukti transaksi. Vercel Blob otomatis di produksi (atau `public/uploads/` lokal bila tanpa token), RBAC + whitelist MIME + nama berkas acak |
+| PWA / Android | Installable (manifest + service worker), ikon adaptif Android (maskable), Add to Home Screen di iOS/Android — fondasi untuk pembungkus APK |
 | Ekspor PDF | Laporan keuangan bulanan bisa diunduh sebagai PDF (`@react-pdf/renderer`, dirender server-side) langsung dari halaman publik |
 
 ## Temuan & Perbaikan Selama Verifikasi
@@ -70,8 +71,8 @@ semua**.
 - **Vitest (31 test)**: RBAC (`can`/`assertCan` untuk semua kombinasi
   peran×izin), kalkulator zakat, algoritma hisab (urutan waktu, rentang
   wajar, determinisme), rate limiter login (hanya kegagalan yang dihitung),
-  dan **service keuangan terhadap database nyata** (SQLite terpisah
-  `test.db`) — termasuk pemisahan tugas (bendahara tidak bisa mengesahkan
+  dan **service keuangan terhadap database nyata** (PostgreSQL lokal, database
+  terpisah `masjid_asabri_test`) — termasuk pemisahan tugas (bendahara tidak bisa mengesahkan
   transaksinya sendiri), integritas jejak audit (koreksi tidak pernah
   menimpa data), dan pembatalan hanya oleh Super Admin.
 - **Playwright (26 test)**: navigasi publik, login (termasuk gagal & rate
@@ -88,5 +89,6 @@ semua**.
 
 - Ekspor laporan keuangan ke Excel (PDF sudah ada; tabel web laporan bisa di-print via browser)
 - Notifikasi email/WhatsApp (`src/lib/notify.ts` belum dibuat — perlu kredensial provider dari yayasan)
-- Migrasi ke PostgreSQL untuk deployment produksi multi-instance (skema sudah kompatibel, tinggal ganti `provider` + `DATABASE_URL`)
-- Rate limiter login & penyimpanan berkas unggahan (`public/uploads/`) sama-sama berbasis proses/filesystem lokal — cocok untuk single-server (VPS), TIDAK untuk platform serverless (mis. Vercel). Jika pindah ke sana, rate limiter perlu penyimpanan bersama (Redis) dan upload perlu object storage (S3-compatible).
+- Deploy produksi sungguhan ke Vercel + Neon/Vercel Postgres — kode & migrasi sudah siap (lihat [docs/DEPLOYMENT.md](DEPLOYMENT.md)), tinggal dieksekusi (perlu akun Vercel & database cloud milik yayasan)
+- Pembungkus Android (APK) — fondasi PWA sudah ada, tinggal dibungkus lewat Capacitor setelah ada URL produksi (lihat [docs/ANDROID.md](ANDROID.md))
+- Rate limiter login masih berbasis memori proses — cukup untuk Vercel skala hobby/satu instance yang tidak restart sering, tapi tidak persisten lintas cold start serverless. Untuk jaminan penuh di produksi serverless, ganti ke penyimpanan bersama (mis. Upstash Redis, ada free tier).

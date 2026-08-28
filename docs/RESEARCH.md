@@ -31,7 +31,7 @@ Sumber: [emasjid.id](https://www.emasjid.id/aplikasi-manajemen-masjid), [taqmir.
 ## 3. Arsitektur (ringkas — detail di ARCHITECTURE.md)
 
 - Next.js 15 (App Router, TypeScript) — satu codebase untuk website publik + dashboard admin.
-- PostgreSQL via Prisma ORM (SQLite untuk dev lokal, kompatibel skema untuk migrasi produksi).
+- PostgreSQL via Prisma ORM di semua lingkungan (dev, test, produksi) — lihat docs/DEPLOYMENT.md untuk opsi hosting gratis.
 - Auth.js (NextAuth) credentials + session JWT, RBAC middleware per rute.
 - Tailwind CSS v4 dengan token warna & tipografi merek "Masjid ASABRI" diambil dari logo yang diunggah pengguna (hijau tua, emas/mustard, terracotta, krem).
 - Testing: Vitest (unit), Playwright (E2E).

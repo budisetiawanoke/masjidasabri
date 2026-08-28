@@ -8,27 +8,43 @@ periode kepengurusan 2026–2030.
 Lihat [docs/RESEARCH.md](docs/RESEARCH.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
 dan [docs/PLAN.md](docs/PLAN.md) untuk riset produk, arsitektur, dan rencana
 pengembangan. [docs/STATUS.md](docs/STATUS.md) melacak status implementasi
-dan verifikasi terkini.
+dan verifikasi terkini. [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) berisi
+panduan langkah-demi-langkah untuk deploy ke Vercel + database cloud gratis.
 
 ## Tumpukan Teknologi
 
 - **Next.js 16** (App Router, TypeScript, Turbopack) — satu codebase untuk situs publik & dashboard admin
-- **Prisma 6 + SQLite** (dev) — skema siap dipindah ke PostgreSQL untuk produksi skala lebih besar
+- **Prisma 6 + PostgreSQL** di semua lingkungan (dev lokal, test, produksi) — lihat [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) untuk opsi hosting gratis (Neon/Vercel Postgres)
 - **Auth.js (NextAuth v5)** — sesi JWT, kredensial email/kata sandi, RBAC 4 peran
 - **Tailwind CSS v4** — token merek kustom (lihat `docs/ARCHITECTURE.md`)
 - **Vitest** (unit) + **Playwright** (E2E) untuk pengujian otomatis
+- **PWA** (installable, ikon adaptif Android, Add to Home Screen) — lihat `src/app/manifest.ts` & `public/sw.js`
 
 ## Menjalankan Secara Lokal
 
+Butuh PostgreSQL berjalan lokal (sekali saja):
+
+```bash
+brew install postgresql@16
+brew services start postgresql@16
+createdb masjid_asabri_dev
+```
+
+Lalu:
+
 ```bash
 npm install
-cp .env.example .env   # sudah ada nilai default untuk dev lokal
-npm run db:migrate      # terapkan skema ke SQLite lokal
+cp .env.example .env   # sesuaikan DATABASE_URL dengan user Postgres lokal Anda
+npm run db:migrate      # terapkan skema
 npm run db:seed         # isi data awal (yayasan, kategori, akun contoh)
 npm run dev
 ```
 
 Buka [http://localhost:3000](http://localhost:3000).
+
+Belum ingin instal PostgreSQL lokal? Bisa langsung pakai database Neon
+gratis (lihat [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) langkah 1) dan isi
+`DATABASE_URL` di `.env` dengan connection string dari sana.
 
 ### Akun Contoh (dari `npm run db:seed`)
 
@@ -45,10 +61,14 @@ Buka [http://localhost:3000](http://localhost:3000).
 
 ```bash
 npm run lint       # ESLint
-npm test           # Vitest — unit test RBAC, kalkulasi zakat, hisab, dan alur keuangan (DB SQLite terpisah: test.db)
+npm test           # Vitest — unit test RBAC, kalkulasi zakat, hisab, dan alur keuangan (DB Postgres terpisah: masjid_asabri_test)
 npx playwright test # E2E — alur login, RBAC, dan pencatatan→pengesahan transaksi (butuh dev server berjalan)
 npm run build       # build produksi + type-check penuh
 ```
+
+`npm test` otomatis menyinkronkan skema ke database `masjid_asabri_test`
+lewat script `pretest` — buat database ini sekali dengan `createdb
+masjid_asabri_test` sebelum menjalankan test untuk pertama kali.
 
 ## Struktur Direktori
 
@@ -84,10 +104,11 @@ dari sesi — klien tidak pernah dipercaya. Lihat tabel lengkap di
   cukup untuk deployment single-instance; untuk multi-instance/serverless
   ganti dengan penyimpanan bersama (mis. Redis).
 - **Berkas unggahan** (foto pengurus, poster kegiatan, QRIS, bukti transaksi)
-  disimpan di filesystem lokal `public/uploads/` ([src/lib/upload.ts](src/lib/upload.ts)) —
-  cocok untuk VPS/single-server, TIDAK untuk platform serverless (filesystem-nya
-  sementara/read-only). Endpoint `/api/upload` membatasi tipe MIME, ukuran
-  (5MB), dan peran pengunggah; nama berkas selalu diacak (bukan nama asli).
+  otomatis memakai **Vercel Blob** bila `BLOB_READ_WRITE_TOKEN` tersedia
+  (di Vercel — lihat [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) langkah 5),
+  atau filesystem lokal `public/uploads/` bila tidak ([src/lib/upload.ts](src/lib/upload.ts)).
+  Endpoint `/api/upload` membatasi tipe MIME, ukuran (5MB), dan peran
+  pengunggah di kedua jalur; nama berkas selalu diacak (bukan nama asli).
 - **3 kerentanan `npm audit` tersisa** berasal dari `@prisma/config` (tooling
   CLI Prisma, dipakai saat `prisma migrate`/`generate`, bukan bagian bundel
   runtime aplikasi) — perbaikan otomatis mensyaratkan downgrade ke Prisma versi
