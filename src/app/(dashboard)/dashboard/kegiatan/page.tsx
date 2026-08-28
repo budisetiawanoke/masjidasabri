@@ -22,7 +22,13 @@ export default async function KegiatanDashboardPage() {
               <CardTitle>Kegiatan Mendatang</CardTitle>
             </CardHeader>
             <CardBody>
-              <EventList events={events.map((e) => ({ ...e, startAt: e.startAt.toISOString() }))} />
+              <EventList
+                events={events.map((e) => ({
+                  ...e,
+                  startAt: e.startAt.toISOString(),
+                  endAt: e.endAt ? e.endAt.toISOString() : null,
+                }))}
+              />
             </CardBody>
           </Card>
         </div>

@@ -22,7 +22,12 @@ export default async function InventarisPage() {
               <CardTitle>Daftar Aset</CardTitle>
             </CardHeader>
             <CardBody>
-              <InventoryList items={items} />
+              <InventoryList
+                items={items.map((i) => ({
+                  ...i,
+                  maintenanceLogs: i.maintenanceLogs.map((l) => ({ ...l, performedAt: l.performedAt.toISOString() })),
+                }))}
+              />
             </CardBody>
           </Card>
         </div>

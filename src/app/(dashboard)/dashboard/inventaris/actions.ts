@@ -3,11 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { requireActor } from "@/lib/require-actor";
 import { inventoryItemSchema, maintenanceLogSchema } from "@/server/inventory/schema";
-import { createInventoryItem, deleteInventoryItem, addMaintenanceLog } from "@/server/inventory/service";
+import { createInventoryItem, updateInventoryItem, deleteInventoryItem, addMaintenanceLog } from "@/server/inventory/service";
 import { zodErrorToFieldErrors, errorMessage, type ActionState } from "@/lib/action-state";
 
-export async function createInventoryItemAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const parsed = inventoryItemSchema.safeParse({
+function parseInventoryForm(formData: FormData) {
+  return inventoryItemSchema.safeParse({
     name: formData.get("name"),
     category: formData.get("category"),
     condition: formData.get("condition"),
@@ -16,6 +16,10 @@ export async function createInventoryItemAction(_prev: ActionState, formData: Fo
     acquiredAt: formData.get("acquiredAt") || undefined,
     notes: formData.get("notes") || undefined,
   });
+}
+
+export async function createInventoryItemAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = parseInventoryForm(formData);
   if (!parsed.success) return { ok: false, fieldErrors: zodErrorToFieldErrors(parsed.error) };
 
   try {
@@ -23,6 +27,21 @@ export async function createInventoryItemAction(_prev: ActionState, formData: Fo
     await createInventoryItem(actor, parsed.data);
     revalidatePath("/dashboard/inventaris");
     return { ok: true, message: "Aset ditambahkan." };
+  } catch (e) {
+    return { ok: false, message: errorMessage(e) };
+  }
+}
+
+export async function updateInventoryItemAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const id = String(formData.get("id") || "");
+  const parsed = parseInventoryForm(formData);
+  if (!parsed.success) return { ok: false, fieldErrors: zodErrorToFieldErrors(parsed.error) };
+
+  try {
+    const actor = await requireActor();
+    await updateInventoryItem(actor, id, parsed.data);
+    revalidatePath("/dashboard/inventaris");
+    return { ok: true, message: "Aset diperbarui." };
   } catch (e) {
     return { ok: false, message: errorMessage(e) };
   }

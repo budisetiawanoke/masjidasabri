@@ -1,9 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { deleteInventoryItemAction } from "@/app/(dashboard)/dashboard/inventaris/actions";
+import { InventoryForm } from "@/app/(dashboard)/dashboard/inventaris/InventoryForm";
+import { MaintenanceLogPanel } from "@/app/(dashboard)/dashboard/inventaris/MaintenanceLogPanel";
 
 type Item = {
   id: string;
@@ -12,6 +14,8 @@ type Item = {
   condition: string;
   quantity: number;
   location: string | null;
+  notes: string | null;
+  maintenanceLogs: { id: string; description: string; cost: number | null; performedAt: string | Date }[];
 };
 
 const CONDITION_TONE: Record<string, "green" | "gold" | "terracotta"> = {
@@ -28,52 +32,79 @@ const CONDITION_LABEL: Record<string, string> = {
 
 export function InventoryList({ items }: { items: Item[] }) {
   const [pending, startTransition] = useTransition();
+  const [openId, setOpenId] = useState<null | { id: string; mode: "edit" | "maintenance" }>(null);
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-border-subtle text-left text-foreground/70">
-            <th className="py-2 pr-4 font-medium">Nama</th>
-            <th className="py-2 pr-4 font-medium">Kategori</th>
-            <th className="py-2 pr-4 font-medium">Kondisi</th>
-            <th className="py-2 pr-4 text-right font-medium">Jumlah</th>
-            <th className="py-2 pr-4 font-medium">Lokasi</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((i) => (
-            <tr key={i.id} className="border-b border-border-subtle/60">
-              <td className="py-2 pr-4 font-medium text-brand-green-900">{i.name}</td>
-              <td className="py-2 pr-4">{i.category}</td>
-              <td className="py-2 pr-4">
-                <Badge tone={CONDITION_TONE[i.condition]}>{CONDITION_LABEL[i.condition]}</Badge>
-              </td>
-              <td className="py-2 pr-4 text-right">{i.quantity}</td>
-              <td className="py-2 pr-4">{i.location || "-"}</td>
-              <td className="py-2 text-right">
+    <div className="space-y-3">
+      {items.length === 0 && <p className="text-sm text-foreground/70">Belum ada data aset.</p>}
+      {items.map((item) => {
+        const isOpen = openId?.id === item.id;
+        return (
+          <div key={item.id} className="rounded-xl border border-border-subtle p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="font-medium text-brand-green-900">{item.name}</p>
+                  <Badge tone={CONDITION_TONE[item.condition]}>{CONDITION_LABEL[item.condition]}</Badge>
+                </div>
+                <p className="mt-1 text-xs text-foreground/70">
+                  {item.category} · {item.quantity} unit{item.location && ` · ${item.location}`}
+                </p>
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpenId(isOpen && openId?.mode === "edit" ? null : { id: item.id, mode: "edit" })}
+                  className="px-3 py-1.5 text-xs"
+                >
+                  {isOpen && openId?.mode === "edit" ? "Tutup" : "Ubah"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() =>
+                    setOpenId(isOpen && openId?.mode === "maintenance" ? null : { id: item.id, mode: "maintenance" })
+                  }
+                  className="px-3 py-1.5 text-xs"
+                >
+                  {isOpen && openId?.mode === "maintenance" ? "Tutup" : "Pemeliharaan"}
+                </Button>
                 <Button
                   type="button"
                   variant="ghost"
                   disabled={pending}
-                  onClick={() => startTransition(() => deleteInventoryItemAction(i.id))}
-                  className="px-2 py-1 text-xs text-brand-terracotta-700"
+                  onClick={() => startTransition(() => deleteInventoryItemAction(item.id))}
+                  className="px-2 py-1.5 text-xs text-brand-terracotta-700"
                 >
                   Hapus
                 </Button>
-              </td>
-            </tr>
-          ))}
-          {items.length === 0 && (
-            <tr>
-              <td colSpan={6} className="py-6 text-center text-foreground/70">
-                Belum ada data aset.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+              </div>
+            </div>
+
+            {isOpen && openId?.mode === "edit" && (
+              <div className="mt-4 border-t border-border-subtle pt-4">
+                <InventoryForm
+                  defaults={{
+                    id: item.id,
+                    name: item.name,
+                    category: item.category,
+                    condition: item.condition,
+                    quantity: item.quantity,
+                    location: item.location,
+                    notes: item.notes,
+                  }}
+                  onSaved={() => setOpenId(null)}
+                />
+              </div>
+            )}
+
+            {isOpen && openId?.mode === "maintenance" && (
+              <MaintenanceLogPanel itemId={item.id} logs={item.maintenanceLogs} />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

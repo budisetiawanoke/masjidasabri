@@ -17,10 +17,10 @@ semua**.
 | Keuangan | Catat transaksi, alur PENDING→APPROVED, pembatalan (void) dengan alasan, koreksi dengan jejak audit (before/after snapshot), kategori kustom, saldo real-time, laporan publik per bulan |
 | Jamaah | CRUD data jamaah, pencarian, riwayat transaksi per jamaah |
 | Struktur Pengurus | Tampil di halaman publik `/profil` |
-| Kegiatan | CRUD kegiatan (kajian/TPA/PHBI/rapat), tampil publik & di jadwal sholat (khatib/kajian) |
+| Kegiatan | CRUD penuh (tambah/ubah/hapus) kajian/TPA/PHBI/rapat, tampil publik & di jadwal sholat (khatib/kajian) |
 | Pengumuman | CRUD, sematkan di atas, tampil publik |
 | Jadwal Sholat | Live dari Aladhan API + fallback hisab lokal (algoritma posisi matahari sendiri) bila API tak terjangkau |
-| Inventaris | CRUD aset + kondisi + lokasi |
+| Inventaris | CRUD penuh aset + kondisi + lokasi, plus riwayat pemeliharaan (catat perbaikan & biaya per aset) |
 | Zakat & Kurban | Kalkulator publik (maal & fitrah), pendaftaran mandiri publik, admin menandai status/distribusi |
 | Kotak Saran | Kirim publik (bisa anonim), admin menanggapi, isolasi data (jamaah hanya lihat tiketnya sendiri) |
 | Pengaturan Yayasan | Super Admin mengubah profil publik, koordinat (untuk jadwal sholat), info rekening |
@@ -63,7 +63,6 @@ semua**.
 
 ## Yang Belum Dikerjakan / Kandidat Iterasi Berikutnya
 
-- Edit inline untuk kegiatan & inventaris (saat ini: tambah + hapus; belum ada form ubah)
 - Ekspor laporan keuangan ke PDF/Excel (saat ini: tampilan tabel web + bisa di-print via browser)
 - Notifikasi email/WhatsApp (`src/lib/notify.ts` belum dibuat — perlu kredensial provider dari yayasan)
 - Upload gambar (poster kegiatan, foto pengurus, QRIS) — field `posterUrl`/`photoUrl`/`qrisImageUrl` sudah ada di skema tapi belum ada UI unggah file (perlu keputusan storage: lokal vs S3-compatible)
