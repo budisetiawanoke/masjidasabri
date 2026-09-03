@@ -19,6 +19,7 @@ type Ticket = {
   response: string | null;
   createdAt: string | Date;
   author: { name: string } | null;
+  trackingCode: string | null;
 };
 
 const STATUS_TONE: Record<string, "gold" | "green" | "terracotta"> = {
@@ -45,6 +46,12 @@ export function SuggestionRow({ ticket }: { ticket: Ticket }) {
             {formatDateTime(ticket.createdAt)} ·{" "}
             {ticket.isAnonymous ? "Anonim" : ticket.author?.name || "Tamu"}
             {ticket.contactInfo && ` · ${ticket.contactInfo}`}
+            {ticket.trackingCode && (
+              <>
+                {" · kode "}
+                <span className="font-mono font-semibold text-brand-green-900">{ticket.trackingCode}</span>
+              </>
+            )}
           </p>
         </div>
         {ticket.status !== "SELESAI" && (

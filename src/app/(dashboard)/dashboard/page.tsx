@@ -111,7 +111,15 @@ export default async function DashboardHomePage() {
                   <Badge tone={t.status === "SELESAI" ? "green" : "gold"}>{t.status}</Badge>
                 </div>
                 <p className="mt-1 text-foreground/70">{t.message}</p>
-                <p className="mt-1 text-xs text-foreground/70">{formatDateTime(t.createdAt)}</p>
+                <p className="mt-1 text-xs text-foreground/70">
+                  {formatDateTime(t.createdAt)}
+                  {t.trackingCode && (
+                    <>
+                      {" · kode "}
+                      <span className="font-mono font-semibold text-brand-green-900">{t.trackingCode}</span>
+                    </>
+                  )}
+                </p>
                 {t.response && <p className="mt-2 rounded bg-brand-green-100 p-2 text-xs text-brand-green-900">{t.response}</p>}
               </div>
             ))}

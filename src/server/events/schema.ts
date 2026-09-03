@@ -17,5 +17,6 @@ export const announcementSchema = z.object({
   title: z.string().trim().min(3).max(150),
   body: z.string().trim().min(3).max(5000),
   isPinned: z.boolean().optional(),
+  imageUrl: looseUrlOrPath,
 });
 export type AnnouncementInput = z.infer<typeof announcementSchema>;

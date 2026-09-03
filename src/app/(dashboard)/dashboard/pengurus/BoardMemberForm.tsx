@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { FieldGroup, Input } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { FileUpload } from "@/components/ui/FileUpload";
@@ -22,6 +22,7 @@ export function BoardMemberForm({ defaults, onSaved }: { defaults?: Defaults; on
     isEdit ? updateBoardMemberAction : createBoardMemberAction,
     initialActionState
   );
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   useEffect(() => {
     if (state.ok && isEdit) onSaved?.();
@@ -52,9 +53,15 @@ export function BoardMemberForm({ defaults, onSaved }: { defaults?: Defaults; on
       <FieldGroup label="Urutan Tampil" htmlFor="order" error={state.fieldErrors?.order} hint="Angka lebih kecil tampil lebih dulu">
         <Input id="order" name="order" type="number" min={0} defaultValue={defaults?.order ?? 0} />
       </FieldGroup>
-      <FileUpload name="photoUrl" label="Foto (opsional)" category="board" defaultValue={defaults?.photoUrl} />
-      <Button type="submit" disabled={pending} className="w-full">
-        {pending ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Tambah Pengurus"}
+      <FileUpload
+        name="photoUrl"
+        label="Foto (opsional)"
+        category="board"
+        defaultValue={defaults?.photoUrl}
+        onUploadStateChange={setUploadingPhoto}
+      />
+      <Button type="submit" disabled={pending || uploadingPhoto} className="w-full">
+        {uploadingPhoto ? "Menunggu foto selesai diunggah..." : pending ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Tambah Pengurus"}
       </Button>
     </form>
   );

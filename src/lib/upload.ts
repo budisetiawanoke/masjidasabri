@@ -19,13 +19,19 @@ import { put as putBlob } from "@vercel/blob";
  * ukuran, nama berkas acak) — hanya tujuan penyimpanannya yang berbeda.
  */
 
-export type UploadCategory = "events" | "board" | "foundation" | "transactions";
+export type UploadCategory = "events" | "board" | "foundation" | "transactions" | "announcements" | "public-proof";
 
 const ALLOWED_MIME: Record<UploadCategory, string[]> = {
   events: ["image/jpeg", "image/png", "image/webp"],
   board: ["image/jpeg", "image/png", "image/webp"],
   foundation: ["image/jpeg", "image/png", "image/webp"],
   transactions: ["image/jpeg", "image/png", "image/webp", "application/pdf"],
+  announcements: ["image/jpeg", "image/png", "image/webp"],
+  // Bukti transfer infaq/donasi/zakat/kurban — diunggah publik TANPA login
+  // langsung dari server action masing-masing (bukan lewat /api/upload,
+  // yang mensyaratkan sesi staf). Gambar saja (bukan PDF) karena ini memang
+  // dimaksudkan sebagai screenshot/foto bukti transfer, bukan dokumen resmi.
+  "public-proof": ["image/jpeg", "image/png", "image/webp"],
 };
 
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
@@ -75,4 +81,19 @@ export async function saveUploadedFile(category: UploadCategory, file: File): Pr
   const buffer = Buffer.from(await file.arrayBuffer());
   await writeFile(path.join(dir, filename), buffer);
   return `/uploads/${category}/${filename}`;
+}
+
+/**
+ * Bukti transfer (foto/screenshot) untuk infaq, donasi, zakat, dan kurban —
+ * semuanya opsional dan diunggah TANPA login. File diproses langsung lewat
+ * fungsi ini (bukan lewat /api/upload yang mensyaratkan sesi staf), karena
+ * server action publik yang memanggilnya SUDAH menjadi batas kepercayaan
+ * yang cukup (submission same-origin, tervalidasi Zod). Kosong/tidak ada
+ * file = tidak masalah, bukti memang tidak wajib (tidak semua jamaah sempat
+ * screenshot). Dipakai bersama oleh src/server/donations/service.ts dan
+ * src/server/zakat/service.ts — jangan duplikasi logikanya di kedua tempat.
+ */
+export async function saveOptionalProofImage(file: File | null | undefined): Promise<string | null> {
+  if (!file || file.size === 0) return null;
+  return saveUploadedFile("public-proof", file);
 }

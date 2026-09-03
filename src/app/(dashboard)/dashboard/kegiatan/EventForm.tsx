@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { FieldGroup, Input, Select, Textarea } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { FileUpload } from "@/components/ui/FileUpload";
@@ -22,6 +22,7 @@ type EventDefaults = {
 export function EventForm({ defaults, onSaved }: { defaults?: EventDefaults; onSaved?: () => void }) {
   const isEdit = Boolean(defaults?.id);
   const [state, formAction, pending] = useActionState(isEdit ? updateEventAction : createEventAction, initialActionState);
+  const [uploadingPoster, setUploadingPoster] = useState(false);
 
   useEffect(() => {
     if (state.ok && isEdit) onSaved?.();
@@ -69,9 +70,15 @@ export function EventForm({ defaults, onSaved }: { defaults?: EventDefaults; onS
       <FieldGroup label="Pemateri / Khatib" htmlFor="speaker" error={state.fieldErrors?.speaker}>
         <Input id="speaker" name="speaker" defaultValue={defaults?.speaker ?? ""} />
       </FieldGroup>
-      <FileUpload name="posterUrl" label="Poster (opsional)" category="events" defaultValue={defaults?.posterUrl} />
-      <Button type="submit" disabled={pending} className="w-full">
-        {pending ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Tambah Kegiatan"}
+      <FileUpload
+        name="posterUrl"
+        label="Poster (opsional)"
+        category="events"
+        defaultValue={defaults?.posterUrl}
+        onUploadStateChange={setUploadingPoster}
+      />
+      <Button type="submit" disabled={pending || uploadingPoster} className="w-full">
+        {uploadingPoster ? "Menunggu poster selesai diunggah..." : pending ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Tambah Kegiatan"}
       </Button>
     </form>
   );

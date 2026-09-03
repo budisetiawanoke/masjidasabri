@@ -1,30 +1,37 @@
 @import "tailwindcss";
 
 /*
- * Token merek Masjid ASABRI — diambil dari logo Pengurus Yayasan Masjid
- * ASABRI Jatiasih 2026–2030 (hijau tua menara/kubah, emas ranting padi,
- * terracotta rantai penghubung, krem latar medali).
+ * Token Merek & Tema Islami Masjid ASABRI — Diambil dari lencana resmi yayasan
+ * (Hijau Zamrud Masjid, Emas Ranting Padi, Terracotta Rantai, Krem Sand Ivory)
  */
 :root {
+  --brand-green-950: #08281e;
   --brand-green-900: #0f3d2e;
+  --brand-green-800: #16523e;
   --brand-green-700: #1d5c42;
+  --brand-green-500: #29825e;
   --brand-green-100: #e3ede7;
+  --brand-green-50: #f1f7f4;
+
+  --brand-gold-600: #b88d1d;
   --brand-gold-500: #d4a72c;
+  --brand-gold-400: #e0b848;
   --brand-gold-300: #e8c765;
   --brand-gold-100: #faf1d8;
-  --brand-terracotta-500: #c1502e;
-  /* Varian lebih gelap khusus teks di atas latar terang (badge, pesan galat,
-     tautan hapus) — #c1502e gagal rasio kontras AA (≈3.7–4.4:1) di atas
-     krem/putih/tint terracotta; #96391b lolos AA (≥5.7:1) di semua konteks itu. */
+  --brand-gold-50: #fdfbf3;
+
   --brand-terracotta-700: #96391b;
+  --brand-terracotta-500: #c1502e;
   --brand-terracotta-100: #f6e0d6;
-  --brand-cream-50: #fbf7ee;
-  --brand-ink-900: #14231b;
+
+  --brand-cream-50: #fcf9f2;
+  --brand-cream-100: #f5eedf;
+  --brand-ink-900: #0d1e16;
 
   --background: var(--brand-cream-50);
   --foreground: var(--brand-ink-900);
   --surface: #ffffff;
-  --border-subtle: #e4dcc8;
+  --border-subtle: #e8e0cc;
 }
 
 @theme inline {
@@ -33,16 +40,27 @@
   --color-surface: var(--surface);
   --color-border-subtle: var(--border-subtle);
 
+  --color-brand-green-950: var(--brand-green-950);
   --color-brand-green-900: var(--brand-green-900);
+  --color-brand-green-800: var(--brand-green-800);
   --color-brand-green-700: var(--brand-green-700);
+  --color-brand-green-500: var(--brand-green-500);
   --color-brand-green-100: var(--brand-green-100);
+  --color-brand-green-50: var(--brand-green-50);
+
+  --color-brand-gold-600: var(--brand-gold-600);
   --color-brand-gold-500: var(--brand-gold-500);
+  --color-brand-gold-400: var(--brand-gold-400);
   --color-brand-gold-300: var(--brand-gold-300);
   --color-brand-gold-100: var(--brand-gold-100);
-  --color-brand-terracotta-500: var(--brand-terracotta-500);
+  --color-brand-gold-50: var(--brand-gold-50);
+
   --color-brand-terracotta-700: var(--brand-terracotta-700);
+  --color-brand-terracotta-500: var(--brand-terracotta-500);
   --color-brand-terracotta-100: var(--brand-terracotta-100);
+
   --color-brand-cream-50: var(--brand-cream-50);
+  --color-brand-cream-100: var(--brand-cream-100);
   --color-brand-ink-900: var(--brand-ink-900);
 
   --font-sans: var(--font-jakarta);
@@ -52,11 +70,32 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
 }
 
 @layer utilities {
   .font-display {
     font-family: var(--font-display), Georgia, serif;
+  }
+
+  /* Glassmorphism khusus tema Islami */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 167, 44, 0.2);
+  }
+
+  .glass-card-dark {
+    background: rgba(15, 61, 46, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 167, 44, 0.25);
+  }
+
+  .gold-gradient-text {
+    background: linear-gradient(90deg, #d4a72c, #faf1d8, #d4a72c);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
   }
 }

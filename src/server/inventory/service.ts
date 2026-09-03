@@ -10,7 +10,15 @@ type Actor = { id: string; role: Role };
 export async function listInventoryItems() {
   return prisma.inventoryItem.findMany({
     orderBy: { name: "asc" },
-    include: { responsible: true, maintenanceLogs: { orderBy: { performedAt: "desc" }, take: 3 } },
+    // `responsible` di-select eksplisit (bukan `true` polos) — hasil ini
+    // diteruskan ke <InventoryList> (Client Component); tanpa select, field
+    // `passwordHash` staf yang tercatat sebagai penanggung jawab ikut
+    // tersemat di payload RSC ke browser (pola yang sama ditemukan &
+    // diperbaiki di finance, suggestions, & events service).
+    include: {
+      responsible: { select: { id: true, name: true } },
+      maintenanceLogs: { orderBy: { performedAt: "desc" }, take: 3 },
+    },
   });
 }
 

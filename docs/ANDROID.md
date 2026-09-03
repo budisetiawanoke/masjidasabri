@@ -35,6 +35,34 @@ APK final harus menunjuk ke URL produksi sungguhan (lihat
 [docs/DEPLOYMENT.md](DEPLOYMENT.md)) — bukan tunnel sementara atau
 localhost.
 
+> ⚠️ **Jebakan saat uji coba lewat tunnel + `next dev`**: kalau APK diarahkan
+> ke tunnel sementara (cloudflared/ngrok) yang mem-proxy `next dev` (bukan
+> `next start`/produksi), Next.js **memblokir diam-diam** permintaan
+> cross-origin ke aset `/_next/static/*` dari domain tunnel (fitur keamanan
+> dev server, lihat `allowedDevOrigins` di `next.config.ts`). Akibatnya:
+> halaman tetap tampil normal (HTML awal dari server tetap terkirim), tapi
+> komponen client tertentu (mis. tombol menu burger `MobileNav.tsx`) gagal
+> hydrate — **terlihat ada tapi sama sekali tidak merespons ketukan** — tanpa
+> error yang terlihat di layar. Sudah ditambahkan `allowedDevOrigins:
+> ["*.trycloudflare.com"]` di `next.config.ts` untuk mengatasi ini; kalau
+> pakai tunnel provider lain, tambahkan pola host-nya di sana juga. Ini
+> **tidak relevan untuk `next start`/produksi sungguhan** — hanya berlaku
+> saat APK menunjuk ke dev server.
+
+> ⚠️ **Jebakan kedua: `NEXTAUTH_URL` di `.env` bikin login "gagal" lewat
+> tunnel**. Kalau `.env` lokal mengisi `NEXTAUTH_URL="http://localhost:3000"`,
+> Auth.js SELALU memakai nilai itu untuk redirect setelah login — mengabaikan
+> `trustHost` dan header `Host` permintaan yang sesungguhnya sepenuhnya
+> (perilaku `createActionURL` di `@auth/core`, bukan bug Next.js). Akibatnya:
+> login lewat APK/tunnel tampak berhasil sebentar lalu **melempar ke browser
+> sistem HP yang mencoba membuka `localhost:3000/dashboard`** (tidak ada
+> apa-apa di situ dari sisi HP, jadi terlihat seperti login gagal total).
+> Solusi: biarkan `NEXTAUTH_URL` **tidak diisi** di `.env` lokal (lihat
+> `.env.example`) — Auth.js lalu mendeteksi origin otomatis dari header Host
+> yang masuk, benar baik diakses via `localhost`, tunnel, maupun IP LAN.
+> Hanya isi `NEXTAUTH_URL` di lingkungan produksi sungguhan yang domainnya
+> sudah pasti/tidak berubah.
+
 ### 2. Build APK
 
 ```bash

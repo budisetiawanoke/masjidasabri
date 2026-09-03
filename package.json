@@ -3,11 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "pretest": "DATABASE_URL=\"postgresql://$(whoami)@localhost:5432/masjid_asabri_test\" prisma db push --skip-generate --accept-data-loss",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

@@ -71,7 +71,12 @@ export async function listAnnouncements(take = 20) {
   return prisma.announcement.findMany({
     orderBy: [{ isPinned: "desc" }, { publishedAt: "desc" }],
     take,
-    include: { author: true },
+    // `select` eksplisit — pemanggil saat ini merender inline di Server
+    // Component (aman), tapi `author: true` polos tetap menyertakan
+    // `passwordHash` penulis di objek yang dikembalikan; sekali saja dipakai
+    // dari Client Component nanti, itu langsung bocor ke browser (pola yang
+    // sama ditemukan & diperbaiki di finance & suggestions service).
+    include: { author: { select: { id: true, name: true } } },
   });
 }
 
@@ -82,6 +87,7 @@ export async function createAnnouncement(actor: Actor, input: AnnouncementInput)
       title: input.title,
       body: input.body,
       isPinned: input.isPinned ?? false,
+      imageUrl: input.imageUrl || null,
       authorId: actor.id,
     },
   });

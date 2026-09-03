@@ -1,10 +1,9 @@
-import { userInfo } from "node:os";
-
-// Arahkan Prisma ke database Postgres TERPISAH khusus pengujian — harus
-// dieksekusi SEBELUM modul manapun (termasuk @/lib/prisma) diimpor oleh file
-// test, karena PrismaClient membaca DATABASE_URL saat konstruksi. Skema
-// disinkronkan ke database ini oleh script "pretest" (lihat package.json)
-// sebelum Vitest berjalan.
-process.env.DATABASE_URL = `postgresql://${userInfo().username}@localhost:5432/masjid_asabri_test`;
+// Satu database Supabase dipakai untuk semua lingkungan (dev, test, produksi)
+// — lihat catatan di .env. Karena itu, PrismaClient di sini memakai
+// DATABASE_URL dari .env apa adanya (tidak ada lagi override ke database
+// lokal terpisah). Setiap test yang membuat data (mis.
+// tests/unit/finance-service.test.ts) WAJIB membersihkan barisnya sendiri
+// di `afterAll` supaya database bersama ini tidak menumpuk sampah dari
+// setiap kali test dijalankan.
 
 import "@testing-library/jest-dom/vitest";

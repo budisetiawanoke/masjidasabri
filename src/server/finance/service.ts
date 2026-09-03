@@ -185,7 +185,18 @@ export async function listTransactions(filters: {
       categoryId: filters.categoryId,
       date: filters.from || filters.to ? { gte: filters.from, lte: filters.to } : undefined,
     },
-    include: { category: true, recordedBy: true, approvedBy: true, member: true },
+    // recordedBy/approvedBy WAJIB pakai `select` (bukan `true` polos) — hasil
+    // findMany ini diteruskan langsung ke <TransactionList> (Client
+    // Component), jadi field apa pun yang ikut ter-include (termasuk
+    // `passwordHash` milik staf yang mencatat/mengesahkan) akan tersemat di
+    // payload RSC yang dikirim ke browser. Ditemukan & diperbaiki saat audit
+    // halaman per peran.
+    include: {
+      category: true,
+      recordedBy: { select: { id: true, name: true } },
+      approvedBy: { select: { id: true, name: true } },
+      member: true,
+    },
     orderBy: { date: "desc" },
     take: filters.take ?? 50,
     skip: filters.skip ?? 0,
@@ -195,7 +206,8 @@ export async function listTransactions(filters: {
 export async function getTransactionRevisions(transactionId: string) {
   return prisma.transactionRevision.findMany({
     where: { transactionId },
-    include: { changedBy: true },
+    // Lihat catatan di listTransactions() di atas — pola yang sama.
+    include: { changedBy: { select: { id: true, name: true } } },
     orderBy: { createdAt: "desc" },
   });
 }

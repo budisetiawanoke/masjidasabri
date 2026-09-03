@@ -70,7 +70,7 @@ test.describe("Uji ketahanan (adversarial)", () => {
     // dengan me-reload sesi jamaah dan memastikan tetap diblokir dari
     // modul yang seharusnya hanya bisa diakses Super Admin.
     await page.goto("/dashboard/pengguna");
-    await page.waitForURL("**/dashboard"); // tetap diarahkan keluar, bukan menampilkan halaman kelola pengguna
+    await expect(page.getByText("Akses Ditolak")).toBeVisible(); // tetap ditolak, bukan menampilkan halaman kelola pengguna
     await expect(page.getByRole("heading", { name: "Manajemen Pengguna" })).toHaveCount(0);
   });
 });

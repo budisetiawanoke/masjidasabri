@@ -11,6 +11,7 @@ export async function createAnnouncementAction(_prev: ActionState, formData: For
     title: formData.get("title"),
     body: formData.get("body"),
     isPinned: formData.get("isPinned") === "on",
+    imageUrl: formData.get("imageUrl") || undefined,
   });
   if (!parsed.success) return { ok: false, fieldErrors: zodErrorToFieldErrors(parsed.error) };
 

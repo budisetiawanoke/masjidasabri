@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { assertCan } from "@/lib/rbac";
 import { writeAuditLog } from "@/server/audit/log";
+import { saveOptionalProofImage } from "@/lib/upload";
 import type { Role } from "@prisma/client";
 import type { ZakatRecordInput, QurbanRecordInput } from "@/server/zakat/schema";
 
@@ -16,8 +17,14 @@ export async function listZakatRecords(year?: number) {
   });
 }
 
-/** Pendaftaran mandiri oleh jamaah lewat halaman publik — tanpa perlu login. */
-export async function registerZakatPublic(input: ZakatRecordInput) {
+/**
+ * Pendaftaran mandiri oleh jamaah lewat halaman publik — tanpa perlu login.
+ * Bukti transfer (opsional) diproses lewat saveOptionalProofImage, sama
+ * seperti infaq/donasi (lihat src/server/donations/service.ts) — tanpa
+ * mensyaratkan sesi staf.
+ */
+export async function registerZakatPublic(input: ZakatRecordInput, proofFile?: File | null) {
+  const proofImageUrl = await saveOptionalProofImage(proofFile);
   return prisma.zakatRecord.create({
     data: {
       type: input.type,
@@ -26,11 +33,13 @@ export async function registerZakatPublic(input: ZakatRecordInput) {
       familyCount: input.familyCount,
       amountRice: input.amountRice ?? null,
       amountMoney: input.amountMoney ?? null,
+      proofImageUrl,
     },
   });
 }
 
-export async function registerQurbanPublic(input: QurbanRecordInput) {
+export async function registerQurbanPublic(input: QurbanRecordInput, proofFile?: File | null) {
+  const proofImageUrl = await saveOptionalProofImage(proofFile);
   return prisma.qurbanRecord.create({
     data: {
       animalType: input.animalType,
@@ -39,6 +48,7 @@ export async function registerQurbanPublic(input: QurbanRecordInput) {
       sharesCount: input.sharesCount,
       amountPaid: input.amountPaid,
       year: input.year,
+      proofImageUrl,
     },
   });
 }

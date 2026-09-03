@@ -4,6 +4,8 @@ export type ActionState = {
   ok: boolean;
   message?: string;
   fieldErrors?: Record<string, string>;
+  /** Kode pelacakan tiket kotak saran — lihat submitSuggestionAction. */
+  trackingCode?: string;
 };
 
 export const initialActionState: ActionState = { ok: false };

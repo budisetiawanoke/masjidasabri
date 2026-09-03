@@ -22,7 +22,7 @@ semua**.
 | Jadwal Sholat | Live dari Aladhan API + fallback hisab lokal (algoritma posisi matahari sendiri) bila API tak terjangkau |
 | Inventaris | CRUD penuh aset + kondisi + lokasi, plus riwayat pemeliharaan (catat perbaikan & biaya per aset) |
 | Zakat & Kurban | Kalkulator publik (maal & fitrah), pendaftaran mandiri publik, admin menandai status/distribusi |
-| Kotak Saran | Kirim publik (bisa anonim), admin menanggapi, isolasi data (jamaah hanya lihat tiketnya sendiri) |
+| Kotak Saran | Kirim publik (bisa anonim, tanpa perlu akun), admin menanggapi. Setiap tiket dapat kode pelacakan unik — siapa saja bisa cek status & tanggapan di `/kotak-saran/cek-status` tanpa login (lihat "Keputusan Produk" di bawah); pemilik akun peran JAMAAH (relawan/panitia) tetap bisa lihat riwayat tiketnya sendiri lewat dashboard sebagai bonus |
 | Pengaturan Yayasan | Super Admin mengubah profil publik, koordinat (untuk jadwal sholat), info rekening, gambar QRIS |
 | Manajemen Pengguna | Super Admin membuat akun, ubah peran/status aktif, reset kata sandi — dengan proteksi anti-lockout diri sendiri |
 | Unggah Berkas | `/api/upload` — foto pengurus, poster kegiatan, gambar QRIS, bukti transaksi. Vercel Blob otomatis di produksi (atau `public/uploads/` lokal bila tanpa token), RBAC + whitelist MIME + nama berkas acak |
@@ -101,10 +101,34 @@ dimatikan setelah verifikasi — **APK untuk dibagikan ke jamaah harus
 di-build ulang mengarah ke URL produksi sungguhan** setelah deploy (langkah
 satu perintah, lihat docs/ANDROID.md bagian "Membuat APK untuk distribusi").
 
+## Keputusan Produk: Peran Jamaah Bukan untuk Registrasi Massal
+
+Awalnya peran `JAMAAH` dipikirkan sebagai akun untuk tiap jamaah masjid. Setelah
+ditinjau ulang, ini **diubah secara sengaja**:
+
+- **Tidak ada — dan tidak akan dibuat — pendaftaran akun mandiri untuk jamaah
+  umum.** Akun hanya dibuat manual oleh Super Admin (`/dashboard/pengguna`),
+  jadi tidak scalable untuk ratusan/ribuan jamaah dan tidak pernah dimaksudkan
+  untuk itu.
+- Hampir seluruh fitur (jadwal sholat, laporan keuangan, kegiatan, pengumuman,
+  profil pengurus, kalkulator + **pendaftaran** zakat & kurban) sudah publik
+  tanpa login — `ZakatRecord`/`QurbanRecord` bahkan tidak terhubung ke tabel
+  `User` sama sekali.
+- **Kotak Saran** — satu-satunya fitur yang dulu "butuh" akun untuk pelacakan
+  status — sekarang memakai **kode pelacakan publik** (`SuggestionTicket.trackingCode`,
+  format `XXXX-XXXX`) yang diberikan ke SETIAP pengirim (anonim maupun bukan)
+  saat submit, dan bisa dipakai siapa saja untuk cek status di
+  `/kotak-saran/cek-status` tanpa login. Lihat `createSuggestion()` &
+  `getSuggestionByTrackingCode()` di `src/server/suggestions/service.ts`.
+- Peran `JAMAAH` **tetap ada** di sistem, tapi sekarang untuk kasus khusus
+  (relawan/panitia aktif yang memang perlu login) — bukan syarat memakai
+  aplikasi. Copy di halaman login sudah disesuaikan
+  ("relawan/panitia terdaftar", bukan "Jamaah Terdaftar").
+
 ## Yang Belum Dikerjakan / Kandidat Iterasi Berikutnya
 
 - Ekspor laporan keuangan ke Excel (PDF sudah ada; tabel web laporan bisa di-print via browser)
 - Notifikasi email/WhatsApp (`src/lib/notify.ts` belum dibuat — perlu kredensial provider dari yayasan)
-- Deploy produksi sungguhan ke Vercel + Neon/Vercel Postgres — kode & migrasi sudah siap (lihat [docs/DEPLOYMENT.md](DEPLOYMENT.md)), tinggal dieksekusi (perlu akun Vercel & database cloud milik yayasan)
+- Database produksi (Supabase) sudah dibuat, skema & data awal sudah diterapkan, dan diverifikasi (33 E2E + 31 unit test hijau terhadap Supabase sungguhan) — lihat [docs/DEPLOYMENT.md](DEPLOYMENT.md). Tinggal deploy aplikasinya sendiri ke Vercel (perlu akun Vercel milik yayasan)
 - Build ulang APK final mengarah ke URL produksi setelah deploy (satu perintah, lihat docs/ANDROID.md)
 - Rate limiter login masih berbasis memori proses — cukup untuk Vercel skala hobby/satu instance yang tidak restart sering, tapi tidak persisten lintas cold start serverless. Untuk jaminan penuh di produksi serverless, ganti ke penyimpanan bersama (mis. Upstash Redis, ada free tier).

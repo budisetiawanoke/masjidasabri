@@ -1,16 +1,27 @@
 // Masjid ASABRI — skema data inti.
 // PostgreSQL di semua lingkungan (dev lokal via Homebrew, test lokal via
-// database Postgres terpisah, produksi via Neon/Vercel Postgres) — supaya
-// perilaku database yang diuji secara lokal benar-benar sama dengan yang
-// dipakai di produksi (lihat docs/ARCHITECTURE.md).
+// database Postgres terpisah, produksi via Supabase) — supaya perilaku
+// database yang diuji secara lokal benar-benar sama dengan yang dipakai di
+// produksi (lihat docs/ARCHITECTURE.md dan docs/DEPLOYMENT.md).
+//
+// `directUrl` WAJIB diisi di semua lingkungan (bukan hanya produksi) —
+// Prisma memvalidasi variabel env ini ada begitu field-nya dideklarasikan
+// di sini, walau di dev lokal nilainya sama saja dengan DATABASE_URL (tidak
+// ada pooler di Postgres lokal). Di produksi (Supabase) keduanya BEDA:
+// DATABASE_URL = connection pooler (port 6543, dipakai runtime aplikasi di
+// Vercel — cocok untuk serverless), DIRECT_URL = koneksi langsung (port
+// 5432, dipakai khusus saat migrasi skema karena pooler transaksi Supabase
+// tidak mendukung prepared statement multi-perintah yang dibutuhkan
+// `prisma migrate`).
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -170,6 +181,7 @@ model Announcement {
   id          String   @id @default(cuid())
   title       String
   body        String
+  imageUrl    String? // banner/gambar pengumuman (opsional), diunggah pengurus
   isPinned    Boolean  @default(false)
   publishedAt DateTime @default(now())
   authorId    String
@@ -215,21 +227,66 @@ model ZakatRecord {
   familyCount   Int      @default(1)
   amountRice    Float?   // kg beras (fitrah)
   amountMoney   Int?     // rupiah
+  proofImageUrl String?  // bukti transfer (opsional), diunggah publik tanpa akun
   distributedTo String?
   status        String   @default("DITERIMA") // DITERIMA | DISALURKAN
   recordedAt    DateTime @default(now())
 }
 
 model QurbanRecord {
-  id           String   @id @default(cuid())
-  animalType   String   // "SAPI" | "KAMBING" | "DOMBA"
-  qurbanFor    String   // atas nama
-  contactPhone String?
-  sharesCount  Int      @default(1)
-  amountPaid   Int
-  status       String   @default("TERDAFTAR") // TERDAFTAR | LUNAS | DISEMBELIH | DIDISTRIBUSI
-  year         Int
-  recordedAt   DateTime @default(now())
+  id            String   @id @default(cuid())
+  animalType    String   // "SAPI" | "KAMBING" | "DOMBA"
+  qurbanFor     String   // atas nama
+  contactPhone  String?
+  sharesCount   Int      @default(1)
+  amountPaid    Int
+  proofImageUrl String?  // bukti transfer (opsional), diunggah publik tanpa akun
+  status        String   @default("TERDAFTAR") // TERDAFTAR | LUNAS | DISEMBELIH | DIDISTRIBUSI
+  year          Int
+  recordedAt    DateTime @default(now())
+}
+
+// Infaq/Sadaqah — kategori tetap (bukan kampanye), untuk kebutuhan rutin
+// masjid: operasional, dhuafa, anak yatim. Pengiriman publik, tanpa akun,
+// dengan lampiran bukti transfer opsional (foto/screenshot).
+model InfaqRecord {
+  id            String   @id @default(cuid())
+  category      String   // "OPERASIONAL" | "DHUAFA" | "ANAK_YATIM"
+  donorName     String
+  contactInfo   String?
+  amount        Int?     // opsional — sebagian donatur mungkin tidak mau sebutkan nominal
+  proofImageUrl String?
+  status        String   @default("DITERIMA") // DITERIMA | DIKONFIRMASI
+  recordedAt    DateTime @default(now())
+
+  @@index([recordedAt])
+}
+
+// Donasi — dikelompokkan per kampanye ("sesuai kebutuhan": bencana alam,
+// bela Palestina, pembangunan masjid, dst.) yang dibuat pengurus sesuai
+// kebutuhan, bukan daftar tetap seperti InfaqRecord.
+model DonationCampaign {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  donations DonationRecord[]
+}
+
+model DonationRecord {
+  id            String   @id @default(cuid())
+  campaignId    String
+  campaign      DonationCampaign @relation(fields: [campaignId], references: [id])
+  donorName     String
+  contactInfo   String?
+  amount        Int?
+  proofImageUrl String?
+  status        String   @default("DITERIMA") // DITERIMA | DIKONFIRMASI
+  recordedAt    DateTime @default(now())
+
+  @@index([recordedAt])
 }
 
 model SuggestionTicket {
@@ -247,6 +304,12 @@ model SuggestionTicket {
   handledBy    User?    @relation("SuggestionHandler", fields: [handledById], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  // Kode pelacakan publik (mis. "AB3D-9F2K") — jalan bagi SIAPA SAJA untuk
+  // mengecek status tiketnya di /kotak-saran/cek-status TANPA perlu akun.
+  // Nullable karena tiket lama (sebelum kolom ini ada) tidak punya kode;
+  // setiap tiket BARU selalu diberi kode oleh createSuggestion().
+  trackingCode String? @unique
 }
 
 model AuditLog {

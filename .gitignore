@@ -52,3 +52,12 @@ next-env.d.ts
 # bukan bagian dari source code, dan menumpuk seiring pemakaian aplikasi
 /public/uploads/
 *.pdf
+
+# hasil build APK yang tercecer di root repo (bukan android/, yang sudah
+# py punya .gitignore sendiri) — berkas biner besar, bukan source code
+/*.apk
+
+# materi desain referensi (mis. ekspor Figma) — bukan source code, ukuran
+# besar; simpan di luar repo (Drive/Dropbox) kalau perlu diarsipkan
+/Desain Aplikasi*/
+/Desain Aplikasi*.zip

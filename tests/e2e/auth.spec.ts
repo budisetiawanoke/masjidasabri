@@ -13,7 +13,7 @@ test.describe("Autentikasi", () => {
     await page.getByLabel("Email").fill(ACCOUNTS.superAdmin.email);
     await page.getByLabel("Kata Sandi").fill("kata-sandi-salah-sekali");
     await page.getByRole("button", { name: "Masuk" }).click();
-    await expect(page.locator('p[role="alert"]')).toContainText(/salah|dinonaktifkan/);
+    await expect(page.locator('form [role="alert"]')).toContainText(/salah|dinonaktifkan/);
     await expect(page).toHaveURL(/\/login/);
   });
 

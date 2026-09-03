@@ -12,6 +12,7 @@ type Category = { id: string; name: string; kind: string };
 export function TransactionForm({ categories }: { categories: Category[] }) {
   const [state, formAction, pending] = useActionState(createTransactionAction, initialActionState);
   const [formKey, setFormKey] = useState(0);
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const [lastHandledState, setLastHandledState] = useState(state);
   const today = new Date().toISOString().slice(0, 10);
 
@@ -68,9 +69,10 @@ export function TransactionForm({ categories }: { categories: Category[] }) {
         category="transactions"
         accept="image/jpeg,image/png,image/webp,application/pdf"
         hint="Foto struk/bukti transfer atau PDF, maks. 5MB"
+        onUploadStateChange={setUploadingAttachment}
       />
-      <Button type="submit" disabled={pending} className="w-full">
-        {pending ? "Menyimpan..." : "Catat Transaksi"}
+      <Button type="submit" disabled={pending || uploadingAttachment} className="w-full">
+        {uploadingAttachment ? "Menunggu bukti selesai diunggah..." : pending ? "Menyimpan..." : "Catat Transaksi"}
       </Button>
     </form>
   );

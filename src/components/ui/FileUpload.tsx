@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import Image from "next/image";
 import { Label } from "@/components/ui/Field";
 import type { UploadCategory } from "@/lib/upload";
@@ -11,6 +11,16 @@ import type { UploadCategory } from "@/lib/upload";
  * `name` sehingga ikut terkirim saat form induk (server action) disubmit.
  * Form induk sendiri tetap form biasa (bukan multipart) — hanya field ini
  * yang melakukan permintaan terpisah untuk berkasnya.
+ *
+ * PENTING: unggahan ini berjalan ASINKRON, terpisah dari submit form induk.
+ * Kalau pengguna klik submit sebelum unggahan selesai, input tersembunyi
+ * masih kosong dan lampirannya hilang tanpa pesan error apa pun — form
+ * "berhasil" tersimpan tapi tanpa gambar/berkas yang baru saja dipilih.
+ * `onUploadStateChange` WAJIB dipakai oleh form pemanggil untuk menonaktifkan
+ * tombol submit selama `status === "uploading"` (lihat EventForm/
+ * AnnouncementForm/ProfileForm/BoardMemberForm/TransactionForm untuk pola
+ * yang konsisten) — bukan sekadar penghias UI, ini yang mencegah kehilangan
+ * data secara diam-diam.
  */
 export function FileUpload({
   name,
@@ -19,6 +29,7 @@ export function FileUpload({
   defaultValue,
   accept = "image/jpeg,image/png,image/webp",
   hint,
+  onUploadStateChange,
 }: {
   name: string;
   label: string;
@@ -26,11 +37,20 @@ export function FileUpload({
   defaultValue?: string | null;
   accept?: string;
   hint?: string;
+  onUploadStateChange?: (uploading: boolean) => void;
 }) {
   const inputId = useId();
   const [url, setUrl] = useState<string | null>(defaultValue ?? null);
   const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    onUploadStateChange?.(status === "uploading");
+    // Sengaja hanya bergantung pada `status` — `onUploadStateChange` adalah
+    // callback yang biasanya baru (identitas berubah) di setiap render form
+    // induk; mengikutkannya di sini akan memicu efek berulang tanpa guna.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

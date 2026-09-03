@@ -8,8 +8,24 @@ import type { CreateUserInput } from "@/server/users/schema";
 
 type Actor = { id: string; role: Role };
 
-export async function listUsers() {
-  return prisma.user.findMany({ orderBy: { createdAt: "desc" } });
+export async function listUsers(actor: Actor) {
+  // Pertahanan berlapis: halaman pemanggil (dashboard/pengguna/page.tsx) juga
+  // memeriksa izin ini, tapi jangan sampai fungsi query ke Prisma ini jadi
+  // satu-satunya yang TIDAK memvalidasi ulang di server (lihat catatan di
+  // README soal "satu-satunya jalur ke Prisma").
+  assertCan(actor.role, "MANAGE_USERS");
+  // `select` eksplisit WAJIB di sini — tanpa ini Prisma mengembalikan seluruh
+  // kolom User (termasuk `passwordHash`), dan karena hasilnya diteruskan
+  // langsung sebagai prop ke <UserRow> (Client Component), Next.js akan
+  // menyematkan hash bcrypt SETIAP akun ke payload RSC yang dikirim ke
+  // browser — bisa dibaca siapa pun yang membuka /dashboard/pengguna lewat
+  // "Lihat Sumber Halaman" atau tab Network, membuka jalan brute-force
+  // offline tanpa perlu akses database sama sekali. Ditemukan & diperbaiki
+  // saat audit halaman per peran.
+  return prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+    select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true },
+  });
 }
 
 export async function createUser(actor: Actor, input: CreateUserInput) {

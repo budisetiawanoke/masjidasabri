@@ -52,6 +52,15 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  // Database ini dipakai bersama untuk dev/test/produksi (satu Supabase,
+  // lihat .env) — WAJIB membersihkan semua baris yang dibuat test ini,
+  // urut sesuai foreign key (anak dulu, baru induk).
+  const userIds = [superAdmin.id, bendahara.id, jamaah.id];
+  await prisma.auditLog.deleteMany({ where: { actorId: { in: userIds } } });
+  await prisma.transactionRevision.deleteMany({ where: { changedById: { in: userIds } } });
+  await prisma.transaction.deleteMany({ where: { categoryId: incomeCategoryId } });
+  await prisma.transactionCategory.delete({ where: { id: incomeCategoryId } });
+  await prisma.user.deleteMany({ where: { id: { in: userIds } } });
   await prisma.$disconnect();
 });
 

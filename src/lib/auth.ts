@@ -27,6 +27,17 @@ type AppJWT = { id: string; role: Role; [key: string]: unknown };
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
+  // Tanpa ini, Auth.js membangun URL redirect setelah login dari
+  // NEXTAUTH_URL (mis. "http://localhost:3000" saat dev), BUKAN dari host
+  // permintaan yang sesungguhnya — pecah total begitu diakses lewat tunnel,
+  // proxy, atau domain produksi yang berbeda dari NEXTAUTH_URL: pengguna
+  // login sukses tapi diarahkan ke "localhost:3000/dashboard", yang di dalam
+  // WebView Capacitor malah dianggap tautan eksternal dan dilempar ke
+  // browser sistem (gagal total, karena localhost di HP bukan mesin dev).
+  // Aman diaktifkan di sini karena selalu berjalan di belakang reverse proxy
+  // tepercaya sendiri (tunnel dev, atau Vercel/hosting produksi) — bukan
+  // menerima trafik langsung dari klien yang bisa memalsukan header Host.
+  trustHost: true,
   providers: [
     Credentials({
       name: "credentials",

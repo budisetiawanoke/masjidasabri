@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Image from "next/image";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Field";
@@ -15,6 +16,7 @@ type ZakatRow = {
   familyCount: number;
   amountRice: number | null;
   amountMoney: number | null;
+  proofImageUrl: string | null;
   status: string;
   distributedTo: string | null;
   recordedAt: string | Date;
@@ -30,16 +32,28 @@ export function ZakatAdminTable({ records }: { records: ZakatRow[] }) {
       {records.map((r) => (
         <div key={r.id} className="rounded-xl border border-border-subtle p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <Badge tone={r.type === "FITRAH" ? "gold" : "green"}>{r.type === "FITRAH" ? "Fitrah" : "Maal"}</Badge>
-                <Badge tone={r.status === "DISALURKAN" ? "green" : "terracotta"}>{r.status}</Badge>
+            <div className="flex items-start gap-3">
+              {r.proofImageUrl && (
+                <Image
+                  src={r.proofImageUrl}
+                  alt="Bukti transfer"
+                  width={56}
+                  height={56}
+                  unoptimized
+                  className="h-14 w-14 shrink-0 rounded-lg border border-border-subtle object-cover"
+                />
+              )}
+              <div>
+                <div className="flex items-center gap-2">
+                  <Badge tone={r.type === "FITRAH" ? "gold" : "green"}>{r.type === "FITRAH" ? "Fitrah" : "Maal"}</Badge>
+                  <Badge tone={r.status === "DISALURKAN" ? "green" : "terracotta"}>{r.status}</Badge>
+                </div>
+                <p className="mt-1 font-medium text-brand-green-900">{r.payerName}</p>
+                <p className="text-xs text-foreground/70">
+                  {formatDate(r.recordedAt)} · {r.familyCount} jiwa
+                  {r.payerContact && ` · ${r.payerContact}`}
+                </p>
               </div>
-              <p className="mt-1 font-medium text-brand-green-900">{r.payerName}</p>
-              <p className="text-xs text-foreground/70">
-                {formatDate(r.recordedAt)} · {r.familyCount} jiwa
-                {r.payerContact && ` · ${r.payerContact}`}
-              </p>
             </div>
             <div className="text-right text-sm">
               {r.amountRice ? <p>{r.amountRice} kg beras</p> : null}
@@ -78,6 +92,7 @@ type QurbanRow = {
   qurbanFor: string;
   sharesCount: number;
   amountPaid: number;
+  proofImageUrl: string | null;
   status: string;
 };
 
@@ -91,11 +106,23 @@ export function QurbanAdminTable({ records }: { records: QurbanRow[] }) {
       {records.length === 0 && <p className="text-sm text-foreground/70">Belum ada pendaftaran qurban.</p>}
       {records.map((r) => (
         <div key={r.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border-subtle p-4">
-          <div>
-            <p className="font-medium text-brand-green-900">
-              {r.qurbanFor} · {r.animalType} ({r.sharesCount} bagian)
-            </p>
-            <p className="text-xs text-foreground/70">{formatRupiah(r.amountPaid)}</p>
+          <div className="flex items-center gap-3">
+            {r.proofImageUrl && (
+              <Image
+                src={r.proofImageUrl}
+                alt="Bukti transfer"
+                width={56}
+                height={56}
+                unoptimized
+                className="h-14 w-14 shrink-0 rounded-lg border border-border-subtle object-cover"
+              />
+            )}
+            <div>
+              <p className="font-medium text-brand-green-900">
+                {r.qurbanFor} · {r.animalType} ({r.sharesCount} bagian)
+              </p>
+              <p className="text-xs text-foreground/70">{formatRupiah(r.amountPaid)}</p>
+            </div>
           </div>
           <select
             defaultValue={r.status}

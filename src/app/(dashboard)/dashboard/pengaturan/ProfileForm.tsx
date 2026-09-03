@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { FieldGroup, Input, Textarea } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { FileUpload } from "@/components/ui/FileUpload";
@@ -26,6 +26,7 @@ type Profile = {
 
 export function ProfileForm({ profile }: { profile: Profile }) {
   const [state, formAction, pending] = useActionState(updateFoundationProfileAction, initialActionState);
+  const [uploadingQris, setUploadingQris] = useState(false);
 
   return (
     <form action={formAction} className="space-y-4">
@@ -88,12 +89,13 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         category="foundation"
         defaultValue={profile.qrisImageUrl}
         hint="Diunggah manual dari QRIS resmi yayasan — bukan proses pembayaran otomatis, hanya gambar untuk dipindai jamaah."
+        onUploadStateChange={setUploadingQris}
       />
       <FieldGroup label="Tentang Yayasan" htmlFor="aboutText" error={state.fieldErrors?.aboutText}>
         <Textarea id="aboutText" name="aboutText" defaultValue={profile.aboutText} className="min-h-40" required />
       </FieldGroup>
-      <Button type="submit" disabled={pending}>
-        {pending ? "Menyimpan..." : "Simpan Profil"}
+      <Button type="submit" disabled={pending || uploadingQris}>
+        {uploadingQris ? "Menunggu QRIS selesai diunggah..." : pending ? "Menyimpan..." : "Simpan Profil"}
       </Button>
     </form>
   );

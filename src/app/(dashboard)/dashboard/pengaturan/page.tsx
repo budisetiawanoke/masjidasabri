@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { can } from "@/lib/rbac";
+import { requirePagePermission } from "@/lib/require-actor";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { getFoundationProfile } from "@/server/foundation/service";
 import { ProfileForm } from "@/app/(dashboard)/dashboard/pengaturan/ProfileForm";
@@ -9,8 +7,7 @@ import { ProfileForm } from "@/app/(dashboard)/dashboard/pengaturan/ProfileForm"
 export const metadata: Metadata = { title: "Pengaturan Yayasan" };
 
 export default async function PengaturanPage() {
-  const session = await auth();
-  if (!can(session!.user.role, "MANAGE_FOUNDATION_PROFILE")) redirect("/dashboard");
+  await requirePagePermission("MANAGE_FOUNDATION_PROFILE");
 
   const profile = await getFoundationProfile();
 

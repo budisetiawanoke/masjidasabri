@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { saveUploadedFile, UploadError, type UploadCategory } from "@/lib/upload";
 
-const VALID_CATEGORIES: UploadCategory[] = ["events", "board", "foundation", "transactions"];
+// "public-proof" sengaja TIDAK termasuk di sini — bukti transfer
+// infaq/donasi/zakat/kurban diunggah publik tanpa sesi, langsung dari
+// server action masing-masing (lihat saveOptionalProofImage di
+// src/lib/upload.ts), bukan lewat endpoint ini yang mensyaratkan sesi staf.
+const VALID_CATEGORIES: UploadCategory[] = ["events", "board", "foundation", "transactions", "announcements"];
 
 // Peran staf yang boleh mengunggah berkas — sama seperti peran yang boleh
 // mengelola modul terkait (kegiatan/pengurus/yayasan/keuangan). JAMAAH tidak

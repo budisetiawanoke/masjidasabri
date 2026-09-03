@@ -15,7 +15,7 @@ dan [docs/ANDROID.md](docs/ANDROID.md) untuk membuat APK Android.
 ## Tumpukan Teknologi
 
 - **Next.js 16** (App Router, TypeScript, Turbopack) — satu codebase untuk situs publik & dashboard admin
-- **Prisma 6 + PostgreSQL** di semua lingkungan (dev lokal, test, produksi) — lihat [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) untuk opsi hosting gratis (Neon/Vercel Postgres)
+- **Prisma 6 + PostgreSQL** di semua lingkungan (dev lokal, test, produksi via **Supabase**) — lihat [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 - **Auth.js (NextAuth v5)** — sesi JWT, kredensial email/kata sandi, RBAC 4 peran
 - **Tailwind CSS v4** — token merek kustom (lihat `docs/ARCHITECTURE.md`)
 - **Vitest** (unit) + **Playwright** (E2E) untuk pengujian otomatis
@@ -24,29 +24,25 @@ dan [docs/ANDROID.md](docs/ANDROID.md) untuk membuat APK Android.
 
 ## Menjalankan Secara Lokal
 
-Butuh PostgreSQL berjalan lokal (sekali saja):
-
-```bash
-brew install postgresql@16
-brew services start postgresql@16
-createdb masjid_asabri_dev
-```
-
-Lalu:
+**Satu database Supabase dipakai untuk dev lokal maupun produksi** (keputusan
+sadar untuk kesederhanaan pengelolaan tunggal — lihat catatan di `.env` dan
+`docs/DEPLOYMENT.md`). Tidak perlu instal PostgreSQL lokal.
 
 ```bash
 npm install
-cp .env.example .env   # sesuaikan DATABASE_URL dengan user Postgres lokal Anda
+cp .env.example .env   # isi DATABASE_URL + DIRECT_URL dengan connection string Supabase (lihat docs/DEPLOYMENT.md langkah 1)
 npm run db:migrate      # terapkan skema
-npm run db:seed         # isi data awal (yayasan, kategori, akun contoh)
+npm run db:seed         # isi data awal (yayasan, kategori, akun contoh) — aman dijalankan ulang, pakai upsert
 npm run dev
 ```
 
 Buka [http://localhost:3000](http://localhost:3000).
 
-Belum ingin instal PostgreSQL lokal? Bisa langsung pakai database Neon
-gratis (lihat [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) langkah 1) dan isi
-`DATABASE_URL` di `.env` dengan connection string dari sana.
+⚠️ Karena database dev = database produksi, **`npm run dev` dan `npm test`
+menyentuh data yang sama dengan yang dilihat jamaah sungguhan setelah aplikasi
+live**. Test otomatis (`tests/unit/finance-service.test.ts`) sudah membersihkan
+baris yang dibuatnya sendiri di `afterAll`, tapi periksa sesekali kalau ada
+sisa data uji yang tertinggal (mis. email berakhiran `@test.local`).
 
 ### Akun Contoh (dari `npm run db:seed`)
 
@@ -63,14 +59,10 @@ gratis (lihat [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) langkah 1) dan isi
 
 ```bash
 npm run lint       # ESLint
-npm test           # Vitest — unit test RBAC, kalkulasi zakat, hisab, dan alur keuangan (DB Postgres terpisah: masjid_asabri_test)
-npx playwright test # E2E — alur login, RBAC, dan pencatatan→pengesahan transaksi (butuh dev server berjalan)
+npm test           # Vitest — unit test RBAC, kalkulasi zakat, hisab, dan alur keuangan (jalan langsung ke Supabase, lihat catatan "satu database" di atas)
+npx playwright test # E2E — alur login, RBAC, dan pencatatan→pengesahan transaksi (butuh dev server berjalan; TIDAK membersihkan data uji secara otomatis)
 npm run build       # build produksi + type-check penuh
 ```
-
-`npm test` otomatis menyinkronkan skema ke database `masjid_asabri_test`
-lewat script `pretest` — buat database ini sekali dengan `createdb
-masjid_asabri_test` sebelum menjalankan test untuk pertama kali.
 
 ## Struktur Direktori
 
