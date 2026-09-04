@@ -122,3 +122,47 @@ Mitigasi yang sudah ada:
 Kalau nanti jamaah sungguhan sudah memakai aplikasi ini dan risiko data
 tercampur jadi masalah nyata, pertimbangkan pisahkan lagi jadi dua database
 (lihat riwayat commit sebelum migrasi ini untuk pola pemisahannya).
+
+## Deploy aktual: Firebase App Hosting (bukan Vercel)
+
+Bagian "3. Deploy ke Vercel" di atas sudah usang — aplikasi ini sekarang
+live di **Firebase App Hosting**
+(`https://masjidasabri--masjidasabri-a959d.asia-southeast1.hosted.app`),
+terhubung otomatis ke branch `main` repo GitHub. Setiap `git push` ke
+`main` memicu build & rollout baru secara otomatis lewat GitHub App
+Firebase. Env vars (`DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`,
+`FIREBASE_STORAGE_BUCKET`) diisi manual di Firebase Console → App
+Hosting → backend → Settings → Environment.
+
+### ⚠️ Bug ditemukan: `public/<subfolder>/berkas` selalu 404
+
+Berkas statis di `public/` yang berada di **subfolder mana pun**
+(`public/assets/foo.png`, `public/img/foo.png`, dst.) **selalu 404** di
+Firebase App Hosting — sudah dites berkali-kali dengan nama folder
+berbeda-beda, hasilnya konsisten. Hanya berkas di **root** `public/`
+(`public/logo.png`, dst.) yang berpotensi tersaji, dan bahkan itu pun
+TIDAK CUKUP kalau berkas itu cuma direferensikan sebagai string URL di
+JSX (`<Image src="/foo.png">`) — harus ada kode server yang membacanya
+lewat `readFileSync` (lihat pola di `src/lib/emblem-image.tsx`) supaya
+Next.js men-trace & menyertakannya ke bundle produksi. Ini kemungkinan
+bug di adapter Next.js milik App Hosting (output file tracing yang
+salah kaprah menyertakan berkas `public/`, bukan menyalin seluruh folder
+apa adanya seperti perilaku standar Next.js di platform lain).
+
+**Solusi yang dipakai** (lihat `src/app/api/hero-image/route.ts` dan
+`src/app/api/header-logo/route.ts`): sajikan gambar lewat route API
+server yang membaca berkas dari `public/<nama-file-langsung-di-root>`
+via `readFileSync`, bukan lewat URL statis langsung. Kalau menambah
+gambar baru yang perlu tampil di App Hosting, ikuti pola yang sama —
+jangan taruh di subfolder `public/` dan jangan andalkan URL statis
+langsung tanpa route API pembungkus.
+
+### Rollout lambat propagasi (~beberapa menit setelah "berhasil")
+
+`firebase apphosting:rollouts:create` bisa melaporkan
+"Successfully created a new rollout!" padahal konten barunya belum
+benar-benar live selama beberapa menit setelahnya (pernah diamati
+sampai ±10 menit). Jangan buru-buru trigger rollout baru lagi kalau
+baru saja "berhasil" tapi belum kelihatan perubahannya — tunggu dulu,
+karena memicu rollout beruntun dalam waktu singkat tampaknya memperparah
+antrean/keterlambatan ini, bukan mempercepat.
