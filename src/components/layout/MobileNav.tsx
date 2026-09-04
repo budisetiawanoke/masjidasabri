@@ -110,7 +110,7 @@ export function MobileNav({
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2.5">
                 <Image
-                  src="/assets/logo-masjid-asabri.png"
+                  src="/img/logo-masjid-asabri.png"
                   alt="Logo Masjid ASABRI"
                   width={28}
                   height={28}
