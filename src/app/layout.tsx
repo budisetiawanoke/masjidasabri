@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Fraunces, Amiri } from "next/font/google";
 import { PwaRegister } from "@/components/PwaRegister";
+import { CapacitorBackButton } from "@/components/CapacitorBackButton";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <PwaRegister />
+        <CapacitorBackButton />
         {children}
       </body>
     </html>
