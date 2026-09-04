@@ -61,3 +61,8 @@ next-env.d.ts
 # besar; simpan di luar repo (Drive/Dropbox) kalau perlu diarsipkan
 /Desain Aplikasi*/
 /Desain Aplikasi*.zip
+
+# kunci service account Firebase/Google Cloud (Cloud Storage untuk upload
+# berkas, lihat src/lib/firebase-admin.ts) — RAHASIA, jangan pernah commit
+*firebase-adminsdk*.json
+/service-account*.json

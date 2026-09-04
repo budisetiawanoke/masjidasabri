@@ -3,19 +3,21 @@ import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { put as putBlob } from "@vercel/blob";
+import { getFirebaseStorageBucket } from "@/lib/firebase-admin";
 
 /**
- * Penyimpanan berkas unggahan — dua implementasi dipilih otomatis lewat
- * `BLOB_READ_WRITE_TOKEN`:
+ * Penyimpanan berkas unggahan — implementasi dipilih otomatis lewat env var,
+ * dicek berurutan (yang pertama cocok dipakai):
  *
- * - Ada token (mis. saat deploy di Vercel dengan Vercel Blob diaktifkan):
- *   pakai object storage Vercel Blob — WAJIB untuk platform serverless
- *   karena filesystem-nya sementara/read-only, tidak bisa dipakai menyimpan
- *   berkas permanen.
- * - Tidak ada token (dev lokal, atau deployment VPS tradisional tanpa Vercel
- *   Blob): simpan ke `public/uploads/<kategori>/` di filesystem lokal.
+ * 1. `FIREBASE_STORAGE_BUCKET` diisi → Cloud Storage for Firebase. Dipakai
+ *    saat deploy di Firebase App Hosting — WAJIB karena filesystem-nya
+ *    sementara/read-only, sama seperti platform serverless lain.
+ * 2. `BLOB_READ_WRITE_TOKEN` diisi → Vercel Blob (kalau suatu saat kembali
+ *    deploy di Vercel).
+ * 3. Tidak ada keduanya (dev lokal, atau VPS tradisional) → simpan ke
+ *    `public/uploads/<kategori>/` di filesystem lokal.
  *
- * Kedua jalur memakai aturan keamanan yang sama (whitelist MIME, batas
+ * Ketiga jalur memakai aturan keamanan yang sama (whitelist MIME, batas
  * ukuran, nama berkas acak) — hanya tujuan penyimpanannya yang berbeda.
  */
 
@@ -66,6 +68,20 @@ export async function saveUploadedFile(category: UploadCategory, file: File): Pr
   // Nama berkas acak (bukan nama asli) — mencegah path traversal dan
   // tabrakan nama, sekaligus tidak membocorkan nama berkas asli pengguna.
   const filename = `${randomUUID()}.${ext}`;
+
+  const bucket = getFirebaseStorageBucket();
+  if (bucket) {
+    const objectPath = `${category}/${filename}`;
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const blob = bucket.file(objectPath);
+    await blob.save(buffer, {
+      contentType: file.type,
+      resumable: false,
+      metadata: { cacheControl: "public, max-age=31536000, immutable" },
+    });
+    await blob.makePublic();
+    return `https://storage.googleapis.com/${bucket.name}/${objectPath}`;
+  }
 
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     const blob = await putBlob(`${category}/${filename}`, file, {
