@@ -8,7 +8,9 @@ import { listBoardMembers } from "@/server/membership/service";
 import { MapPin, Phone, Mail, Users, Award } from "lucide-react";
 
 export const metadata: Metadata = { title: "Profil & Pengurus" };
-export const revalidate = 300;
+// Render dinamis (bukan pre-render statis) — lihat penjelasan lengkap di
+// src/app/(public)/page.tsx.
+export const dynamic = "force-dynamic";
 
 export default async function ProfilPage() {
   const [profile, board] = await Promise.all([getFoundationProfile(), listBoardMembers()]);

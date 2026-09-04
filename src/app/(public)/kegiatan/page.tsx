@@ -7,7 +7,9 @@ import { formatDateTime } from "@/lib/format";
 import { Calendar, Clock, MapPin, User } from "lucide-react";
 
 export const metadata: Metadata = { title: "Kegiatan" };
-export const revalidate = 120;
+// Render dinamis (bukan pre-render statis) — lihat penjelasan lengkap di
+// src/app/(public)/page.tsx.
+export const dynamic = "force-dynamic";
 
 const CATEGORY_LABEL: Record<string, string> = {
   KAJIAN: "Kajian",

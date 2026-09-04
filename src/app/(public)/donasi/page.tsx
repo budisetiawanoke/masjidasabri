@@ -5,7 +5,10 @@ import { listActiveCampaigns } from "@/server/donations/service";
 import { HandHeart } from "lucide-react";
 
 export const metadata: Metadata = { title: "Donasi" };
-export const revalidate = 60;
+// Render dinamis (bukan pre-render statis) — lihat penjelasan lengkap di
+// src/app/(public)/page.tsx. Progres kampanye donasi juga harus selalu
+// terbaru per kunjungan, bukan cache beberapa menit.
+export const dynamic = "force-dynamic";
 
 export default async function DonasiPage() {
   const campaigns = await listActiveCampaigns();

@@ -8,7 +8,9 @@ import { getMonthlyPublicReport, getBalanceSummary } from "@/server/finance/serv
 import { formatRupiah, monthLabel } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Laporan Keuangan" };
-export const revalidate = 300;
+// Render dinamis (bukan pre-render statis) — lihat penjelasan lengkap di
+// src/app/(public)/page.tsx.
+export const dynamic = "force-dynamic";
 
 function monthOptions() {
   const now = new Date();

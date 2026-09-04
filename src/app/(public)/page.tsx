@@ -19,7 +19,14 @@ import {
   MessageSquareWarning,
 } from "lucide-react";
 
-export const revalidate = 300;
+// Halaman ini membaca data langsung dari database (saldo, pengumuman,
+// jadwal sholat) — dipaksa render dinamis (bukan pre-render statis saat
+// build) karena dua alasan: (1) build di Firebase App Hosting berjalan di
+// lingkungan terpisah dari runtime dan tidak selalu punya akses ke
+// DATABASE_URL, sehingga build gagal kalau halaman mencoba query DB saat
+// prerender; (2) data seperti saldo kas & pengumuman memang harus selalu
+// terbaru, bukan cache ISR yang bisa basi beberapa menit.
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const profile = await getFoundationProfile();

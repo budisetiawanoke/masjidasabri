@@ -6,7 +6,9 @@ import { listAnnouncements } from "@/server/events/service";
 import { Pin } from "lucide-react";
 
 export const metadata: Metadata = { title: "Pengumuman" };
-export const revalidate = 120;
+// Render dinamis (bukan pre-render statis) — lihat penjelasan lengkap di
+// src/app/(public)/page.tsx.
+export const dynamic = "force-dynamic";
 
 export default async function PengumumanPage() {
   const announcements = await listAnnouncements(20);

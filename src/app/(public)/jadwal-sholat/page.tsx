@@ -10,7 +10,9 @@ import { formatDate, formatDateTime } from "@/lib/format";
 import { Clock, MapPin, Compass, UserCheck } from "lucide-react";
 
 export const metadata: Metadata = { title: "Jadwal Sholat" };
-export const revalidate = 3600;
+// Render dinamis (bukan pre-render statis) — lihat penjelasan lengkap di
+// src/app/(public)/page.tsx.
+export const dynamic = "force-dynamic";
 
 const ORDER: { key: "fajr" | "sunrise" | "dhuhr" | "asr" | "maghrib" | "isha"; label: string; icon: string }[] = [
   { key: "fajr", label: "Subuh", icon: "🌅" },
