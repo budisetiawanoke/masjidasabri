@@ -43,7 +43,7 @@ export default async function HomePage() {
       <section className="relative overflow-hidden bg-[#122019] text-white shadow-md">
         <div className="relative h-48 sm:h-64 w-full">
           <Image
-            src="/masjid-foto-hero.jpg"
+            src="/api/hero-image"
             alt="Masjid ASABRI"
             fill
             unoptimized
