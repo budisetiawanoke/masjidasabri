@@ -23,9 +23,15 @@ Emulator, dan diverifikasi menampilkan aplikasi sungguhan dengan benar
 (lambang, jadwal sholat live dari Aladhan API, navigasi antar halaman) —
 lihat `docs/STATUS.md` untuk detail verifikasi.
 
-Build uji coba tersebut mengarah ke URL tunnel sementara
-(`cloudflared`) yang sudah dimatikan setelah pengujian selesai — bukan URL
-permanen, jangan dipakai untuk distribusi sungguhan.
+Build uji coba awal mengarah ke URL tunnel sementara (`cloudflared`) yang
+sudah dimatikan setelah pengujian selesai — bukan URL permanen, jangan
+dipakai untuk distribusi sungguhan.
+
+**Update**: aplikasi sudah live di Firebase App Hosting
+(`https://masjidasabri--masjidasabri-a959d.asia-southeast1.hosted.app`) dan
+APK sideload sudah di-build mengarah ke URL itu — lihat langkah "Membuat APK
+untuk distribusi" di bawah untuk rebuild kalau URL produksi berubah lagi
+(mis. domain resmi yayasan sendiri di kemudian hari).
 
 ## Membuat APK untuk distribusi (sideload)
 

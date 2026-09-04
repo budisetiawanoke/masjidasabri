@@ -6,7 +6,8 @@ import type { CapacitorConfig } from "@capacitor/cli";
 // sudah berjalan (lihat README.md bagian "Aplikasi Android"), bukan aset
 // lokal di www/. Ganti CAPACITOR_SERVER_URL sesuai target build:
 //   - Build uji coba lokal: URL tunnel sementara (mis. dari cloudflared)
-//   - Build produksi: URL Vercel/domain resmi yayasan setelah deploy
+//   - Build produksi: URL Firebase App Hosting/domain resmi yayasan (lihat
+//     docs/DEPLOYMENT.md dan docs/ANDROID.md)
 const serverUrl = process.env.CAPACITOR_SERVER_URL;
 
 const config: CapacitorConfig = {
