@@ -72,7 +72,7 @@ export async function PublicHeader() {
       <div className="flex lg:hidden items-center gap-3 px-4 py-3 h-[56px]">
         <MobileNav items={NAV} isLoggedIn={isLoggedIn} />
         <Image
-          src="/img/logo-masjid-asabri.png"
+          src="/logo-masjid-asabri.png"
           alt="Logo Masjid ASABRI"
           width={24}
           height={24}
