@@ -48,6 +48,10 @@ next-env.d.ts
 /blob-report/
 /playwright/.cache/
 
+# log debug firebase-tools (dibuat otomatis di direktori kerja saat
+# menjalankan perintah `firebase ...`)
+firebase-debug.log
+
 # berkas yang diunggah pengguna saat runtime (lihat src/lib/upload.ts) —
 # bukan bagian dari source code, dan menumpuk seiring pemakaian aplikasi
 /public/uploads/

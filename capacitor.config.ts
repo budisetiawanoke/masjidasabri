@@ -13,7 +13,12 @@ const serverUrl = process.env.CAPACITOR_SERVER_URL;
 const config: CapacitorConfig = {
   appId: "org.masjidasabri.app",
   appName: "Masjid ASABRI",
-  webDir: "public", // tidak benar-benar dipakai (server.url override), tapi wajib diisi Capacitor
+  // Folder terpisah, BUKAN public/ (dipakai Next.js untuk aset statis situs
+  // — index.html di public/ akan menimpa halaman beranda sungguhan di /).
+  // Isinya tidak benar-benar dipakai (server.url override di bawah), hanya
+  // untuk lolos validasi CLI Capacitor yang mewajibkan webDir berisi
+  // index.html.
+  webDir: "android-webdir-placeholder",
   server: serverUrl
     ? {
         url: serverUrl,
