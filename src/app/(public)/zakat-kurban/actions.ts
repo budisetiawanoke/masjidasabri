@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { zakatRecordSchema, qurbanRecordSchema } from "@/server/zakat/schema";
 import { registerZakatPublic, registerQurbanPublic } from "@/server/zakat/service";
 import { zodErrorToFieldErrors, errorMessage, type ActionState } from "@/lib/action-state";
@@ -22,8 +23,13 @@ export async function registerZakatAction(_prev: ActionState, formData: FormData
   const proof = formData.get("proofImage");
 
   try {
-    await registerZakatPublic(parsed.data, proof instanceof File ? proof : null);
-    return { ok: true, message: "Pendaftaran zakat berhasil dicatat. Jazakumullahu khairan." };
+    const record = await registerZakatPublic(parsed.data, proof instanceof File ? proof : null);
+    revalidatePath("/zakat");
+    return {
+      ok: true,
+      message: "Pendaftaran zakat berhasil dicatat. Jazakumullahu khairan.",
+      receiptUrl: `/api/bukti-bayar/zakat/${record.id}`,
+    };
   } catch (e) {
     if (e instanceof UploadError) return { ok: false, message: e.message };
     return { ok: false, message: errorMessage(e) };
@@ -47,8 +53,13 @@ export async function registerQurbanAction(_prev: ActionState, formData: FormDat
   const proof = formData.get("proofImage");
 
   try {
-    await registerQurbanPublic(parsed.data, proof instanceof File ? proof : null);
-    return { ok: true, message: "Pendaftaran qurban berhasil dicatat. Silakan lakukan pembayaran sesuai instruksi panitia." };
+    const record = await registerQurbanPublic(parsed.data, proof instanceof File ? proof : null);
+    revalidatePath("/kurban");
+    return {
+      ok: true,
+      message: "Pendaftaran qurban berhasil dicatat. Silakan lakukan pembayaran sesuai instruksi panitia.",
+      receiptUrl: `/api/bukti-bayar/kurban/${record.id}`,
+    };
   } catch (e) {
     if (e instanceof UploadError) return { ok: false, message: e.message };
     return { ok: false, message: errorMessage(e) };

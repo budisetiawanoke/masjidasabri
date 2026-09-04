@@ -106,3 +106,62 @@ export async function updateQurbanStatus(actor: Actor, id: string, status: strin
   await writeAuditLog({ actorId: actor.id, action: "QURBAN_STATUS_UPDATE", entityType: "QurbanRecord", entityId: id, meta: { status } });
   return record;
 }
+
+// ---------- Laporan publik (dapat dilihat jamaah tanpa login) ----------
+
+const ZAKAT_TYPE_LABEL: Record<string, string> = { FITRAH: "Zakat Fitrah", MAAL: "Zakat Maal" };
+const ANIMAL_TYPE_LABEL: Record<string, string> = { SAPI: "Sapi (patungan)", KAMBING: "Kambing", DOMBA: "Domba" };
+
+/**
+ * Total per jenis zakat (uang & beras terpisah, tidak dijumlahkan jadi satu
+ * angka) — mencakup SELURUH catatan (bukan hanya yang sudah disalurkan),
+ * lihat catatan yang sama di getDonationReportByCampaign()
+ * (src/server/donations/service.ts) soal kenapa tidak difilter status.
+ */
+export async function getZakatReportByType() {
+  const records = await prisma.zakatRecord.findMany({
+    select: { type: true, amountMoney: true, amountRice: true, status: true, familyCount: true },
+  });
+  const byType = new Map<
+    string,
+    { payerCount: number; distributedCount: number; totalMoney: number; totalRice: number; totalFamilyCount: number }
+  >();
+  for (const r of records) {
+    const entry = byType.get(r.type) ?? { payerCount: 0, distributedCount: 0, totalMoney: 0, totalRice: 0, totalFamilyCount: 0 };
+    entry.payerCount += 1;
+    if (r.status === "DISALURKAN") entry.distributedCount += 1;
+    entry.totalMoney += r.amountMoney ?? 0;
+    entry.totalRice += r.amountRice ?? 0;
+    entry.totalFamilyCount += r.familyCount;
+    byType.set(r.type, entry);
+  }
+  return Object.entries(ZAKAT_TYPE_LABEL).map(([type, label]) => ({
+    type,
+    label,
+    ...(byType.get(type) ?? { payerCount: 0, distributedCount: 0, totalMoney: 0, totalRice: 0, totalFamilyCount: 0 }),
+  }));
+}
+
+/** Total per jenis hewan kurban pada satu tahun — default tahun berjalan. */
+export async function getQurbanReportByType(year: number = new Date().getFullYear()) {
+  const records = await prisma.qurbanRecord.findMany({
+    where: { year },
+    select: { animalType: true, sharesCount: true, amountPaid: true, status: true },
+  });
+  const byType = new Map<string, { registrantCount: number; totalShares: number; totalAmount: number }>();
+  for (const r of records) {
+    const entry = byType.get(r.animalType) ?? { registrantCount: 0, totalShares: 0, totalAmount: 0 };
+    entry.registrantCount += 1;
+    entry.totalShares += r.sharesCount;
+    entry.totalAmount += r.amountPaid;
+    byType.set(r.animalType, entry);
+  }
+  return {
+    year,
+    rows: Object.entries(ANIMAL_TYPE_LABEL).map(([animalType, label]) => ({
+      animalType,
+      label,
+      ...(byType.get(animalType) ?? { registrantCount: 0, totalShares: 0, totalAmount: 0 }),
+    })),
+  };
+}

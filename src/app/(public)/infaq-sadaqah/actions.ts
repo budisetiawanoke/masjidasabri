@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { infaqRecordSchema } from "@/server/donations/schema";
 import { registerInfaqPublic } from "@/server/donations/service";
 import { zodErrorToFieldErrors, errorMessage, type ActionState } from "@/lib/action-state";
@@ -20,10 +21,16 @@ export async function submitInfaqAction(_prev: ActionState, formData: FormData):
   const proof = formData.get("proofImage");
 
   try {
-    await registerInfaqPublic(parsed.data, proof instanceof File ? proof : null);
+    const record = await registerInfaqPublic(parsed.data, proof instanceof File ? proof : null);
+    // Supaya kartu "Laporan Infaq & Sadaqah per Peruntukan" di halaman yang
+    // sama langsung menampilkan angka terbaru tanpa perlu jamaah me-refresh
+    // manual (server action tidak otomatis menyegarkan data RSC lain di
+    // halaman yang sama tanpa ini).
+    revalidatePath("/infaq-sadaqah");
     return {
       ok: true,
       message: "Jazakumullahu khairan. Infaq/sadaqah Anda telah kami catat dan akan diperiksa pengurus.",
+      receiptUrl: `/api/bukti-bayar/infaq/${record.id}`,
     };
   } catch (e) {
     if (e instanceof UploadError) return { ok: false, message: e.message };

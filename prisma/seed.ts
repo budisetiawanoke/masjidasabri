@@ -47,6 +47,11 @@ async function main() {
     { name: "Zakat", kind: "MASUK" },
     { name: "Wakaf", kind: "MASUK" },
     { name: "Donasi Pembangunan", kind: "MASUK" },
+    // Dipakai khusus oleh registerInfaqPublic() (src/server/donations/service.ts)
+    // untuk infaq/sadaqah publik berperuntukan "Operasional Masjid" — dipisah
+    // dari "Infaq Jumat" (kotak infaq fisik tiap Jumat) supaya bendahara bisa
+    // membedakan sumber dana online vs tunai langsung di laporan.
+    { name: "Infaq & Sadaqah Online", kind: "MASUK" },
     { name: "Operasional Masjid", kind: "KELUAR" },
     { name: "Pemeliharaan & Perbaikan", kind: "KELUAR" },
     { name: "Kegiatan & Dakwah", kind: "KELUAR" },
@@ -82,6 +87,31 @@ async function main() {
     });
     userRecords[u.role] = user.id;
   }
+
+  // --- Akun sistem (internal, tidak bisa login) ---
+  // Dipakai sebagai `recordedById` untuk transaksi kas yang dibuat OTOMATIS
+  // oleh sistem (bukan diketik manual oleh bendahara) — mis. infaq/sadaqah
+  // publik berperuntukan operasional (lihat registerInfaqPublic() di
+  // src/server/donations/service.ts). Kolom `recordedById` di Transaction
+  // wajib diisi (bukan nullable) demi jejak audit, jadi tetap butuh User
+  // sungguhan meski aksinya otomatis. `isActive: false` mencegah akun ini
+  // dipakai login sungguhan (lihat pengecekan di src/lib/auth.ts); kata
+  // sandinya acak dan sengaja tidak pernah dibagikan ke siapa pun.
+  const systemPasswordHash = await bcrypt.hash(
+    `sistem-tidak-bisa-login-${Math.random().toString(36).slice(2)}`,
+    10
+  );
+  await prisma.user.upsert({
+    where: { email: "sistem@masjidasabri.internal" },
+    update: {},
+    create: {
+      email: "sistem@masjidasabri.internal",
+      name: "Sistem (Otomatis)",
+      role: "BENDAHARA",
+      passwordHash: systemPasswordHash,
+      isActive: false,
+    },
+  });
 
   console.log("Selesai. Akun awal:");
   console.log("  Super Admin : admin@masjidasabri.org / AsabriAdmin#2026");

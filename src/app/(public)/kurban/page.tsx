@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import { Card, CardBody } from "@/components/ui/Card";
 import { RegisterQurbanForm } from "@/app/(public)/zakat-kurban/RegisterForms";
-import { HeartHandshake } from "lucide-react";
+import { getQurbanReportByType } from "@/server/zakat/service";
+import { formatRupiah } from "@/lib/format";
+import { HeartHandshake, BarChart3 } from "lucide-react";
 
 export const metadata: Metadata = { title: "Kurban" };
 
-export default function KurbanPage() {
+export default async function KurbanPage() {
+  const report = await getQurbanReportByType();
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 space-y-4">
       <Card className="border border-border-subtle border-t-2 border-t-brand-gold-500 shadow-sm">
@@ -22,6 +26,29 @@ export default function KurbanPage() {
       </Card>
 
       <RegisterQurbanForm />
+
+      <Card className="border border-border-subtle shadow-sm">
+        <CardBody className="p-4 space-y-1">
+          <span className="flex items-center gap-2 border-b border-border-subtle pb-2 text-sm font-bold uppercase tracking-wider text-brand-green-900">
+            <BarChart3 className="h-4 w-4 text-brand-gold-600" />
+            Laporan Kurban per Jenis · Tahun {report.year}
+          </span>
+          {report.rows.map((r) => (
+            <div key={r.animalType} className="flex items-center justify-between gap-3 border-b border-border-subtle/60 py-2.5 last:border-0">
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-brand-green-900">{r.label}</p>
+                <p className="text-xs text-foreground/60">
+                  {r.registrantCount} pendaftar · {r.totalShares} bagian
+                </p>
+              </div>
+              <p className="shrink-0 text-sm font-bold text-brand-gold-700">{formatRupiah(r.totalAmount)}</p>
+            </div>
+          ))}
+          <p className="pt-2 text-xs text-foreground/60">
+            Total mencakup seluruh pendaftaran qurban tahun {report.year} (termasuk yang belum disembelih).
+          </p>
+        </CardBody>
+      </Card>
     </div>
   );
 }

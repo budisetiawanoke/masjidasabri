@@ -6,6 +6,8 @@ export type ActionState = {
   fieldErrors?: Record<string, string>;
   /** Kode pelacakan tiket kotak saran — lihat submitSuggestionAction. */
   trackingCode?: string;
+  /** Tautan unduh bukti bayar PDF — lihat src/app/api/bukti-bayar/[type]/[id]. */
+  receiptUrl?: string;
 };
 
 export const initialActionState: ActionState = { ok: false };

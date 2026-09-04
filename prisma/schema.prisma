@@ -142,6 +142,11 @@ model Transaction {
 
   revisions TransactionRevision[]
 
+  // Infaq/sadaqah publik berperuntukan "Operasional Masjid" otomatis dicatat
+  // sebagai transaksi kas lewat relasi ini — lihat InfaqRecord.transactionId
+  // dan src/server/donations/service.ts (registerInfaqPublic).
+  infaqRecord InfaqRecord?
+
   @@index([date])
   @@index([status])
   @@index([categoryId])
@@ -258,6 +263,14 @@ model InfaqRecord {
   proofImageUrl String?
   status        String   @default("DITERIMA") // DITERIMA | DIKONFIRMASI
   recordedAt    DateTime @default(now())
+
+  // Diisi otomatis saat category = "OPERASIONAL" dan amount terisi — lihat
+  // registerInfaqPublic() di src/server/donations/service.ts. Nullable karena
+  // infaq untuk DHUAFA/ANAK_YATIM tidak masuk kas masjid (disalurkan
+  // langsung, bukan operasional), dan infaq tanpa nominal tidak punya apa pun
+  // untuk dicatat di kas.
+  transactionId String?      @unique
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
 
   @@index([recordedAt])
 }

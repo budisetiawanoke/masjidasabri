@@ -6,7 +6,7 @@ import { FieldGroup, Input, Select } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { submitInfaqAction } from "@/app/(public)/infaq-sadaqah/actions";
 import { initialActionState } from "@/lib/action-state";
-import { Send, CheckCircle2, AlertTriangle, Camera } from "lucide-react";
+import { Send, CheckCircle2, AlertTriangle, Camera, FileDown } from "lucide-react";
 
 export function InfaqForm() {
   const [state, formAction, pending] = useActionState(submitInfaqAction, initialActionState);
@@ -15,9 +15,20 @@ export function InfaqForm() {
     <Card className="border-t-4 border-t-brand-green-700 shadow-md">
       <CardBody className="p-6">
         {state.ok && state.message && (
-          <div className="mb-5 flex items-center gap-3 rounded-xl bg-brand-green-100 p-4 text-sm font-semibold text-brand-green-900 border border-brand-green-700/30">
-            <CheckCircle2 className="h-5 w-5 shrink-0 text-brand-green-700" />
-            <span>{state.message}</span>
+          <div className="mb-5 space-y-3">
+            <div className="flex items-center gap-3 rounded-xl bg-brand-green-100 p-4 text-sm font-semibold text-brand-green-900 border border-brand-green-700/30">
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-brand-green-700" />
+              <span>{state.message}</span>
+            </div>
+            {state.receiptUrl && (
+              <a
+                href={state.receiptUrl}
+                className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-green-700/40 bg-brand-green-50/60 p-3 text-sm font-bold text-brand-green-900 hover:bg-brand-green-50 transition-colors"
+              >
+                <FileDown className="h-4 w-4 text-brand-green-700" />
+                Unduh Bukti Bayar
+              </a>
+            )}
           </div>
         )}
         {!state.ok && state.message && (
