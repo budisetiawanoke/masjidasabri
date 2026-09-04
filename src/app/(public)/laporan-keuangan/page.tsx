@@ -6,21 +6,12 @@ import { BismillahCalligraphy } from "@/components/brand/BismillahCalligraphy";
 import { IslamicPattern } from "@/components/brand/IslamicPattern";
 import { getMonthlyPublicReport, getBalanceSummary } from "@/server/finance/service";
 import { formatRupiah, monthLabel } from "@/lib/format";
+import { monthOptions } from "@/lib/report-periods";
 
 export const metadata: Metadata = { title: "Laporan Keuangan" };
 // Render dinamis (bukan pre-render statis) — lihat penjelasan lengkap di
 // src/app/(public)/page.tsx.
 export const dynamic = "force-dynamic";
-
-function monthOptions() {
-  const now = new Date();
-  const options: { year: number; month: number }[] = [];
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    options.push({ year: d.getFullYear(), month: d.getMonth() + 1 });
-  }
-  return options;
-}
 
 export default async function LaporanKeuanganPage({
   searchParams,

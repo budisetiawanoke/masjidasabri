@@ -165,3 +165,51 @@ export async function getQurbanReportByType(year: number = new Date().getFullYea
     })),
   };
 }
+
+/**
+ * Rincian zakat satu jenis pada satu bulan — dipakai halaman detail laporan
+ * (/zakat/laporan/[type]) dan unduhan CSV/PDF-nya. Lihat catatan di
+ * getDonationCampaignDetail() (src/server/donations/service.ts) soal
+ * bedanya dari ringkasan getZakatReportByType().
+ */
+export async function getZakatTypeDetail(type: string, year: number, month: number) {
+  const label = ZAKAT_TYPE_LABEL[type];
+  if (!label) return null;
+
+  const from = new Date(year, month - 1, 1);
+  const to = new Date(year, month, 1);
+  const records = await prisma.zakatRecord.findMany({
+    where: { type, recordedAt: { gte: from, lt: to } },
+    orderBy: { recordedAt: "desc" },
+  });
+
+  return {
+    type,
+    label,
+    records,
+    totalMoney: records.reduce((sum, r) => sum + (r.amountMoney ?? 0), 0),
+    totalRice: records.reduce((sum, r) => sum + (r.amountRice ?? 0), 0),
+    count: records.length,
+  };
+}
+
+/** Rincian kurban satu jenis hewan pada satu tahun — lihat catatan di getZakatTypeDetail(). */
+export async function getQurbanTypeDetail(animalType: string, year: number) {
+  const label = ANIMAL_TYPE_LABEL[animalType];
+  if (!label) return null;
+
+  const records = await prisma.qurbanRecord.findMany({
+    where: { animalType, year },
+    orderBy: { recordedAt: "desc" },
+  });
+
+  return {
+    animalType,
+    label,
+    year,
+    records,
+    totalAmount: records.reduce((sum, r) => sum + r.amountPaid, 0),
+    totalShares: records.reduce((sum, r) => sum + r.sharesCount, 0),
+    count: records.length,
+  };
+}

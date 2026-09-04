@@ -33,9 +33,13 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: BRAND.border,
   },
-  cellCategory: { flex: 3 },
-  cellKind: { flex: 2 },
-  cellCount: { flex: 1.5, textAlign: "right" },
+  // paddingRight WAJIB ada di tiap sel — react-pdf tidak punya gap otomatis
+  // antar Text bersebelahan dalam satu row seperti flexbox CSS biasa, jadi
+  // tanpa ini kolom yang isinya panjang bisa nempel jadi satu (ditemukan
+  // saat membuat DetailReportDocument.tsx, pola sama berlaku di sini).
+  cellCategory: { flex: 3, paddingRight: 8 },
+  cellKind: { flex: 2, paddingRight: 8 },
+  cellCount: { flex: 1.5, textAlign: "right", paddingRight: 8 },
   cellTotal: { flex: 2, textAlign: "right" },
   footer: { position: "absolute", bottom: 30, left: 40, right: 40, fontSize: 8, color: "#888" },
   disclaimer: {

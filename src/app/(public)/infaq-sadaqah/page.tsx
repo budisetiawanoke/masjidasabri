@@ -4,7 +4,7 @@ import { Card, CardBody } from "@/components/ui/Card";
 import { InfaqForm } from "@/app/(public)/infaq-sadaqah/InfaqForm";
 import { getInfaqReportByCategory } from "@/server/donations/service";
 import { formatRupiah } from "@/lib/format";
-import { HandCoins, BarChart3 } from "lucide-react";
+import { HandCoins, BarChart3, ChevronRight } from "lucide-react";
 
 export const metadata: Metadata = { title: "Infaq & Sadaqah" };
 
@@ -36,19 +36,27 @@ export default async function InfaqSadaqahPage() {
             Laporan Infaq &amp; Sadaqah per Peruntukan
           </span>
           {report.map((r) => (
-            <div key={r.category} className="flex items-center justify-between gap-3 border-b border-border-subtle/60 py-2.5 last:border-0">
+            <Link
+              key={r.category}
+              href={`/infaq-sadaqah/laporan/${r.category}`}
+              className="flex items-center justify-between gap-3 border-b border-border-subtle/60 py-2.5 last:border-0 -mx-1 px-1 rounded-lg hover:bg-brand-green-50/60 transition-colors"
+            >
               <div className="min-w-0">
                 <p className="text-sm font-bold text-brand-green-900">{r.label}</p>
                 <p className="text-xs text-foreground/60">
                   {r.donorCount} penginfak · {r.confirmedCount} dikonfirmasi
                 </p>
               </div>
-              <p className="shrink-0 text-sm font-bold text-brand-green-700">{formatRupiah(r.total)}</p>
-            </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <p className="text-sm font-bold text-brand-green-700">{formatRupiah(r.total)}</p>
+                <ChevronRight className="h-4 w-4 text-foreground/40" />
+              </div>
+            </Link>
           ))}
           <p className="pt-2 text-xs text-foreground/60">
             Total mencakup seluruh infaq/sadaqah yang tercatat (termasuk yang masih menunggu konfirmasi
-            pengurus). Peruntukan Operasional Masjid otomatis tercatat sebagai pemasukan kas — lihat{" "}
+            pengurus). Ketuk salah satu peruntukan untuk lihat rincian &amp; unduh laporannya. Peruntukan
+            Operasional Masjid otomatis tercatat sebagai pemasukan kas — lihat{" "}
             <Link href="/laporan-keuangan" className="font-semibold text-brand-green-700 underline underline-offset-2">
               Laporan Keuangan
             </Link>

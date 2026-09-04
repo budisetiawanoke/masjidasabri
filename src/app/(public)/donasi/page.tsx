@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Card, CardBody } from "@/components/ui/Card";
 import { DonationForm } from "@/app/(public)/donasi/DonationForm";
 import { listActiveCampaigns, getDonationReportByCampaign } from "@/server/donations/service";
 import { formatRupiah } from "@/lib/format";
-import { HandHeart, BarChart3 } from "lucide-react";
+import { HandHeart, BarChart3, ChevronRight } from "lucide-react";
 
 export const metadata: Metadata = { title: "Donasi" };
 // Render dinamis (bukan pre-render statis) — lihat penjelasan lengkap di
@@ -56,18 +57,26 @@ export default async function DonasiPage() {
               Laporan Donasi per Kampanye
             </span>
             {report.map((r) => (
-              <div key={r.id} className="flex items-center justify-between gap-3 border-b border-border-subtle/60 py-2.5 last:border-0">
+              <Link
+                key={r.id}
+                href={`/donasi/laporan/${r.id}`}
+                className="flex items-center justify-between gap-3 border-b border-border-subtle/60 py-2.5 last:border-0 -mx-1 px-1 rounded-lg hover:bg-brand-gold-50/60 transition-colors"
+              >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-bold text-brand-green-900">{r.title}</p>
                   <p className="text-xs text-foreground/60">
                     {r.donorCount} donatur · {r.confirmedCount} dikonfirmasi
                   </p>
                 </div>
-                <p className="shrink-0 text-sm font-bold text-brand-gold-700">{formatRupiah(r.total)}</p>
-              </div>
+                <div className="flex shrink-0 items-center gap-1">
+                  <p className="text-sm font-bold text-brand-gold-700">{formatRupiah(r.total)}</p>
+                  <ChevronRight className="h-4 w-4 text-foreground/40" />
+                </div>
+              </Link>
             ))}
             <p className="pt-2 text-xs text-foreground/60">
               Total mencakup seluruh donasi yang tercatat (termasuk yang masih menunggu konfirmasi pengurus).
+              Ketuk salah satu kampanye untuk lihat rincian &amp; unduh laporannya.
             </p>
           </CardBody>
         </Card>

@@ -199,3 +199,50 @@ export async function getInfaqReportByCategory() {
     ...(byCategory.get(category) ?? { donorCount: 0, confirmedCount: 0, total: 0 }),
   }));
 }
+
+/**
+ * Rincian donasi satu kampanye pada satu bulan — dipakai halaman detail
+ * laporan (/donasi/laporan/[campaignId]) dan unduhan CSV/PDF-nya. Beda dari
+ * getDonationReportByCampaign() (ringkasan seluruh waktu, semua kampanye) —
+ * ini baris per baris satu kampanye satu periode, sesuai pola
+ * getMonthlyPublicReport() di src/server/finance/service.ts.
+ */
+export async function getDonationCampaignDetail(campaignId: string, year: number, month: number) {
+  const campaign = await prisma.donationCampaign.findUnique({ where: { id: campaignId } });
+  if (!campaign) return null;
+
+  const from = new Date(year, month - 1, 1);
+  const to = new Date(year, month, 1);
+  const records = await prisma.donationRecord.findMany({
+    where: { campaignId, recordedAt: { gte: from, lt: to } },
+    orderBy: { recordedAt: "desc" },
+  });
+
+  return {
+    campaign,
+    records,
+    total: records.reduce((sum, r) => sum + (r.amount ?? 0), 0),
+    count: records.length,
+  };
+}
+
+/** Rincian infaq/sadaqah satu peruntukan pada satu bulan — lihat catatan di getDonationCampaignDetail(). */
+export async function getInfaqCategoryDetail(category: string, year: number, month: number) {
+  const label = INFAQ_CATEGORY_LABEL[category];
+  if (!label) return null;
+
+  const from = new Date(year, month - 1, 1);
+  const to = new Date(year, month, 1);
+  const records = await prisma.infaqRecord.findMany({
+    where: { category, recordedAt: { gte: from, lt: to } },
+    orderBy: { recordedAt: "desc" },
+  });
+
+  return {
+    category,
+    label,
+    records,
+    total: records.reduce((sum, r) => sum + (r.amount ?? 0), 0),
+    count: records.length,
+  };
+}
