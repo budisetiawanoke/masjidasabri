@@ -9,18 +9,9 @@ test.describe("Situs publik", () => {
     await expect(page.getByText("Transparansi Kas").first()).toBeVisible();
   });
 
-  test("beranda menampilkan kartu unduh aplikasi Android, dan endpoint unduhannya menyajikan berkas APK sungguhan", async ({
+  test("endpoint /api/download-apk menyajikan berkas APK sungguhan (tidak ditautkan dari UI mana pun — dibagikan manual oleh pengurus)", async ({
     page,
   }) => {
-    await page.goto("/");
-    await expect(page.getByText("Pasang di Layar Utama HP")).toBeVisible();
-    await expect(page.getByRole("link", { name: "cara memasangnya di halaman FAQ" })).toHaveAttribute(
-      "href",
-      "/faq"
-    );
-    const unduhLink = page.getByRole("link", { name: "Unduh untuk Android" });
-    await expect(unduhLink).toHaveAttribute("href", "/api/download-apk");
-
     const response = await page.request.get("/api/download-apk");
     expect(response.status()).toBe(200);
     expect(response.headers()["content-type"]).toBe("application/vnd.android.package-archive");

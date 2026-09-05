@@ -5,6 +5,25 @@ mengikuti [Keep a Changelog](https://keepachangelog.com/), dan nomor versi
 mengikuti [Semantic Versioning](https://semver.org/) — sesuai versi yang
 ditampilkan di footer setiap halaman publik (`package.json` → `version`).
 
+## [0.3.2] — 2026-09-05
+
+### Dihapus
+- Kartu "Pasang di Layar Utama HP" di halaman Beranda (tombol unduh APK
+  + tautan panduan iPhone) — atas permintaan, seluruh promosi/instruksi
+  cara memasang aplikasi Android maupun iPhone ditarik dari UI situs
+  (baik Beranda maupun FAQ). Termasuk 3 FAQ terkait ("Apakah ada versi
+  aplikasi Android?", "Bagaimana cara memasang aplikasi Android...",
+  "Apakah ada versi untuk iPhone?") dan 2 bagian Buku Panduan Penggunaan
+  ("Memasang Aplikasi Android", "Memasang di iPhone").
+- Selebaran perkenalan (artifact) dikembalikan ke versi "buka lewat
+  browser" tanpa instruksi APK/iPhone.
+
+### Dipertahankan (tidak dihapus)
+- Endpoint `/api/download-apk` dan berkas `public/masjid-asabri.apk`
+  tetap ada dan berfungsi (tidak ditautkan dari UI mana pun) — bisa
+  tetap dibagikan manual oleh pengurus lewat tautan langsung kalau
+  diperlukan, sama seperti alur sebelum fitur unduhan resmi ini ada.
+
 ## [0.3.1] — 2026-09-05
 
 ### Ditambahkan

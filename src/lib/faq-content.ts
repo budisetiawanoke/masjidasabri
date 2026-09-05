@@ -49,24 +49,6 @@ export const FAQ_ITEMS: FaqItem[] = [
     answer:
       "Alamat, nomor telepon, dan email resmi yayasan ditampilkan di bagian bawah (footer) setiap halaman, serta di halaman Profil & Pengurus lengkap dengan susunan pengurusnya.",
   },
-  {
-    category: "Umum",
-    question: "Apakah ada versi aplikasi Android?",
-    answer:
-      "Ya. Ketuk tombol \"Unduh untuk Android\" pada kartu \"Pasang di Layar Utama HP\" di halaman Beranda, atau buka langsung tautan /api/download-apk dari HP Android. Sebagian tombol unduh laporan di versi Android menampilkan jendela pratinjau lebih dulu sebelum benar-benar mengunduh berkasnya — ini normal, bukan aplikasi macet.",
-  },
-  {
-    category: "Umum",
-    question: "Bagaimana cara memasang aplikasi Android setelah diunduh?",
-    answer:
-      "Karena aplikasi ini dibagikan langsung (bukan lewat Play Store), Android biasanya menampilkan peringatan \"sumber tidak dikenal\" saat pertama kali membuka berkasnya — ini normal. Ketuk \"Tetap Pasang\"/\"Install anyway\" (kadang perlu mengizinkan lewat Pengaturan > Izinkan dari sumber ini terlebih dulu), lalu ketuk \"Pasang\". Setelah selesai, ikon Masjid ASABRI akan muncul di layar utama HP seperti aplikasi biasa.",
-  },
-  {
-    category: "Umum",
-    question: "Apakah ada versi untuk iPhone?",
-    answer:
-      "Belum ada aplikasi khusus iPhone di App Store, tapi situs ini bisa dipasang di layar utama iPhone dan terasa seperti aplikasi biasa (tanpa bilah alamat browser). Buka situs ini lewat Safari, ketuk ikon Bagikan (kotak dengan panah ke atas) di bagian bawah layar, gulir dan pilih \"Tambah ke Layar Utama\" (Add to Home Screen), lalu ketuk \"Tambah\". Ikon Masjid ASABRI akan muncul di layar utama. Catatan: cara ini HARUS lewat Safari — browser lain di iPhone (Chrome, dst.) tidak punya opsi ini.",
-  },
   // Donasi & Kampanye
   {
     category: "Donasi & Kampanye",
@@ -189,37 +171,13 @@ export const USER_GUIDE: GuideDoc = {
       ],
     },
     {
-      heading: "2. Memasang Aplikasi Android (Opsional, Disarankan)",
-      paragraphs: [
-        "Situs ini juga tersedia sebagai aplikasi Android — ikon Masjid ASABRI di layar utama HP, tanpa perlu buka browser dulu setiap kali. Aplikasinya dibagikan langsung (bukan lewat Play Store), jadi Android akan menampilkan peringatan \"sumber tidak dikenal\" saat pertama kali memasangnya — ini normal, bukan tanda berbahaya.",
-      ],
-      steps: [
-        "Buka halaman Beranda, ketuk tombol \"Unduh untuk Android\" pada kartu \"Pasang di Layar Utama HP\" (atau buka langsung /api/download-apk dari HP Android).",
-        "Setelah berkas .apk selesai diunduh, ketuk berkasnya untuk membuka.",
-        "Kalau muncul peringatan \"sumber tidak dikenal\"/\"install dari sumber ini diblokir\", ketuk \"Pengaturan\" lalu izinkan, atau ketuk \"Tetap Pasang\"/\"Install anyway\".",
-        "Ketuk \"Pasang\", tunggu selesai, lalu buka aplikasinya — ikon Masjid ASABRI kini ada di layar utama.",
-      ],
-    },
-    {
-      heading: "3. Memasang di iPhone (Tambah ke Layar Utama)",
-      paragraphs: [
-        "iPhone tidak punya berkas aplikasi terpisah seperti Android, tapi situs ini tetap bisa dipasang di layar utama dan terasa seperti aplikasi biasa (tanpa bilah alamat browser) lewat fitur bawaan Safari.",
-      ],
-      steps: [
-        "Buka situs ini lewat Safari (WAJIB Safari — browser lain di iPhone seperti Chrome tidak punya opsi ini).",
-        "Ketuk ikon Bagikan (kotak dengan panah ke atas) di bagian bawah layar.",
-        "Gulir ke bawah, pilih \"Tambah ke Layar Utama\" (Add to Home Screen).",
-        "Ketuk \"Tambah\" di pojok kanan atas — ikon Masjid ASABRI kini ada di layar utama iPhone.",
-      ],
-    },
-    {
-      heading: "4. Melihat Jadwal Sholat, Kegiatan & Pengumuman",
+      heading: "2. Melihat Jadwal Sholat, Kegiatan & Pengumuman",
       paragraphs: [
         "Halaman Jadwal Sholat menampilkan enam waktu sholat hari ini berdasarkan lokasi masjid. Halaman Kegiatan dan Pengumuman menampilkan informasi terbaru dari pengurus, lengkap dengan poster/banner kalau ada.",
       ],
     },
     {
-      heading: "5. Cara Berdonasi ke Kampanye Tertentu",
+      heading: "3. Cara Berdonasi ke Kampanye Tertentu",
       paragraphs: [
         "Kampanye donasi dibuat pengurus untuk kebutuhan tertentu (mis. bantuan bencana, pembangunan masjid). Buka halaman Donasi untuk melihat kampanye yang sedang berjalan beserta rekening tujuannya masing-masing.",
       ],
@@ -232,7 +190,7 @@ export const USER_GUIDE: GuideDoc = {
       ],
     },
     {
-      heading: "6. Cara Mencatat Infaq & Sadaqah",
+      heading: "4. Cara Mencatat Infaq & Sadaqah",
       steps: [
         "Buka halaman Infaq & Sadaqah.",
         "Pilih Peruntukan (Operasional Masjid, Dhuafa, atau Anak Yatim).",
@@ -244,7 +202,7 @@ export const USER_GUIDE: GuideDoc = {
       ],
     },
     {
-      heading: "7. Cara Mendaftar Zakat",
+      heading: "5. Cara Mendaftar Zakat",
       paragraphs: [
         "Halaman Zakat punya Kalkulator Zakat Maal yang langsung menghitung di perangkat Anda — isi nilai harta Anda untuk mengetahui apakah sudah mencapai nisab dan berapa zakat yang wajib dikeluarkan (2,5%).",
       ],
@@ -256,7 +214,7 @@ export const USER_GUIDE: GuideDoc = {
       ],
     },
     {
-      heading: "8. Cara Mendaftar Kurban",
+      heading: "6. Cara Mendaftar Kurban",
       steps: [
         "Buka halaman Kurban.",
         "Ketuk \"Daftar Qurban\", isi Jenis Hewan (Sapi (per ekor), Sapi (Patungan), atau Kambing/Domba), Atas Nama, No. HP, Jumlah Bagian, Tahun, Nominal Dibayarkan, dan Bukti Transfer (opsional).",
@@ -264,7 +222,7 @@ export const USER_GUIDE: GuideDoc = {
       ],
     },
     {
-      heading: "9. Melihat & Mengunduh Laporan",
+      heading: "7. Melihat & Mengunduh Laporan",
       paragraphs: [
         "Semua laporan publik (Laporan Keuangan, dan laporan per kampanye/peruntukan/jenis pada halaman Donasi/Infaq & Sadaqah/Zakat/Kurban) bisa dilihat langsung di layar dan diunduh.",
       ],
@@ -276,13 +234,13 @@ export const USER_GUIDE: GuideDoc = {
       ],
     },
     {
-      heading: "10. Bukti Bayar (Kwitansi Digital)",
+      heading: "8. Bukti Bayar (Kwitansi Digital)",
       paragraphs: [
         "Setiap donasi/infaq/zakat/kurban yang sudah dikonfirmasi pengurus punya bukti bayar digital berisi rincian pemberian Anda, ucapan terima kasih dari pengurus, dan ayat Al-Qur'an yang relevan dengan jenis pemberiannya. Cara mengunduhnya sama seperti laporan lain: ketuk tautan bukti bayar, lihat pratinjaunya, lalu ketuk \"Unduh\".",
       ],
     },
     {
-      heading: "11. Menyampaikan Saran atau Pengaduan",
+      heading: "9. Menyampaikan Saran atau Pengaduan",
       steps: [
         "Buka halaman Kotak Saran, isi Subjek, Isi Pesan, pilih kategori (Saran/Pengaduan), dan boleh dikirim anonim.",
         "Setelah terkirim, simpan Kode Pelacakan yang muncul.",
@@ -290,7 +248,7 @@ export const USER_GUIDE: GuideDoc = {
       ],
     },
     {
-      heading: "12. Butuh Bantuan Lebih Lanjut?",
+      heading: "10. Butuh Bantuan Lebih Lanjut?",
       paragraphs: [
         "Kalau ada pertanyaan yang belum terjawab di sini, cek dulu bagian Pertanyaan Umum (FAQ) di halaman ini, atau hubungi pengurus lewat kontak yang tercantum di bagian bawah situs (footer) atau halaman Profil & Pengurus.",
       ],
