@@ -114,10 +114,18 @@ Mitigasi yang sudah ada:
 - `tests/unit/finance-service.test.ts` membersihkan seluruh baris yang
   dibuatnya sendiri di `afterAll` (user/kategori/transaksi/audit log
   bertanda `@test.local`).
-- Playwright (`tests/e2e/*`) TIDAK melakukan ini secara otomatis — setiap
-  `npx playwright test` meninggalkan data uji (transaksi, tiket saran, dsb.)
-  di database. Sesekali bersihkan manual, atau jalankan E2E hanya saat
-  benar-benar perlu memverifikasi ulang alur kritis, bukan setiap iterasi kecil.
+- Playwright (`tests/e2e/*`) TIDAK membersihkan data yang dibuatnya secara
+  otomatis — setiap run meninggalkan data uji (kampanye, transaksi, tiket
+  saran, dsb.) di database. Sesekali bersihkan manual, atau jalankan E2E
+  hanya saat benar-benar perlu memverifikasi ulang alur kritis, bukan
+  setiap iterasi kecil.
+- `playwright.config.ts` MENOLAK jalan sama sekali kecuali `TEST_DATABASE_URL`
+  (database Postgres/Supabase terpisah khusus pengujian) diset di `.env`,
+  atau `E2E_ALLOW_SHARED_DB=1` diset untuk sengaja menguji ke database
+  yang sama (lihat `.env.example`). Penjaga ini ditambahkan setelah
+  kampanye "Kampanye Uji E2E ..." pernah nyasar tampil ke jamaah
+  sungguhan di halaman publik `/donasi` — 13 kampanye uji & 19 transaksi
+  uji terkumpul dari run-run sebelumnya sampai dibersihkan manual.
 
 Kalau nanti jamaah sungguhan sudah memakai aplikasi ini dan risiko data
 tercampur jadi masalah nyata, pertimbangkan pisahkan lagi jadi dua database
