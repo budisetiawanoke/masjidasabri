@@ -5,6 +5,22 @@ mengikuti [Keep a Changelog](https://keepachangelog.com/), dan nomor versi
 mengikuti [Semantic Versioning](https://semver.org/) — sesuai versi yang
 ditampilkan di footer setiap halaman publik (`package.json` → `version`).
 
+## [0.3.1] — 2026-09-05
+
+### Ditambahkan
+- Panduan resmi cara memasang situs ini di **layar utama iPhone** lewat
+  fitur bawaan Safari ("Tambah ke Layar Utama") — situs ini sebenarnya
+  sudah mendukung ini sejak awal (manifest PWA + ikon Apple Touch sudah
+  ada), tapi belum pernah didokumentasikan ke jamaah. Ditambahkan
+  sebagai FAQ baru dan bagian baru di Buku Panduan Penggunaan.
+
+### Diubah
+- Kartu di halaman Beranda diubah namanya dari "Pasang Aplikasi
+  Android" menjadi "Pasang di Layar Utama HP" (lebih mencakup dua
+  platform), tombol unduh diberi label lebih jelas "Unduh untuk
+  Android", dan ditambahkan tautan "cara memasangnya di halaman FAQ"
+  untuk pengguna iPhone.
+
 ## [0.3.0] — 2026-09-05
 
 ### Ditambahkan

@@ -13,8 +13,12 @@ test.describe("Situs publik", () => {
     page,
   }) => {
     await page.goto("/");
-    await expect(page.getByText("Pasang Aplikasi Android")).toBeVisible();
-    const unduhLink = page.getByRole("link", { name: "Unduh" });
+    await expect(page.getByText("Pasang di Layar Utama HP")).toBeVisible();
+    await expect(page.getByRole("link", { name: "cara memasangnya di halaman FAQ" })).toHaveAttribute(
+      "href",
+      "/faq"
+    );
+    const unduhLink = page.getByRole("link", { name: "Unduh untuk Android" });
     await expect(unduhLink).toHaveAttribute("href", "/api/download-apk");
 
     const response = await page.request.get("/api/download-apk");
