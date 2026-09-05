@@ -5,6 +5,18 @@ mengikuti [Keep a Changelog](https://keepachangelog.com/), dan nomor versi
 mengikuti [Semantic Versioning](https://semver.org/) — sesuai versi yang
 ditampilkan di footer setiap halaman publik (`package.json` → `version`).
 
+## [0.2.1] — 2026-09-05
+
+### Diubah
+- **Playbook Pengurus** di halaman `/faq` sekarang khusus staf (Super Admin,
+  Admin/Pengurus, Bendahara) yang sudah login — tab dan isinya sama sekali
+  tidak dirender untuk pengunjung publik maupun akun Jamaah (bukan cuma
+  disembunyikan lewat tampilan), dan endpoint unduhan PDF-nya
+  (`/api/playbook/pdf`) menolak permintaan tanpa sesi staf yang sah
+  (403). Ditambahkan izin baru `VIEW_PLAYBOOK` di `src/lib/rbac.ts`.
+- FAQ dan Buku Panduan Penggunaan tetap terbuka untuk semua pengunjung
+  tanpa perlu akun, seperti sebelumnya.
+
 ## [0.2.0] — 2026-09-05
 
 ### Ditambahkan

@@ -263,13 +263,13 @@ export const USER_GUIDE: GuideDoc = {
 };
 
 export const PLAYBOOK: GuideDoc = {
-  title: "Playbook Pengurus & Jamaah",
-  subtitle: "Panduan Operasional Pengelolaan — Masjid ASABRI",
+  title: "Playbook Pengurus",
+  subtitle: "Panduan Operasional Pengelolaan — Masjid ASABRI (Khusus Staf)",
   sections: [
     {
       heading: "1. Tentang Playbook Ini",
       paragraphs: [
-        "Playbook ini merangkum alur kerja rutin pengurus dalam mengelola aplikasi Masjid ASABRI, sekaligus memberi jamaah gambaran transparan bagaimana setiap pemberian mereka diproses di balik layar — mulai dari pencatatan, verifikasi, sampai pengesahan sebagai transaksi kas resmi.",
+        "Playbook ini merangkum alur kerja rutin pengurus dalam mengelola aplikasi Masjid ASABRI — mulai dari verifikasi donasi/infaq/zakat/kurban, pencatatan, sampai pengesahan sebagai transaksi kas resmi. Khusus untuk staf (Super Admin, Admin/Pengurus, Bendahara) — tidak ditampilkan ke jamaah umum.",
         "Akses Dashboard (/dashboard) hanya diberikan kepada pengurus yang punya akun, dengan tiga peran: Super Admin (akses penuh), Admin/Pengurus, dan Bendahara — masing-masing punya kewenangan berbeda sesuai tanggung jawabnya.",
       ],
     },

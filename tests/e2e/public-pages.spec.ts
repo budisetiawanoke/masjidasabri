@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { ACCOUNTS, login } from "./helpers";
 
 test.describe("Situs publik", () => {
   test("beranda menampilkan identitas merek, jadwal sholat, dan saldo transparansi", async ({ page }) => {
@@ -101,7 +102,9 @@ test.describe("Situs publik", () => {
     await expect(page.getByText("Masuk Pengurus")).toBeVisible();
   });
 
-  test("halaman FAQ menampilkan pertanyaan umum, buku panduan, dan playbook lewat tab", async ({ page }) => {
+  test("halaman FAQ menampilkan pertanyaan umum & buku panduan untuk publik, TANPA tab Playbook Pengurus", async ({
+    page,
+  }) => {
     await page.goto("/faq");
     // Tab "Pertanyaan Umum" aktif secara default.
     await expect(page.getByRole("button", { name: "Apa itu aplikasi Masjid ASABRI ini?" })).toBeVisible();
@@ -112,8 +115,32 @@ test.describe("Situs publik", () => {
     await expect(page.getByRole("heading", { name: "Buku Panduan Penggunaan" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Unduh Buku Panduan (PDF)" })).toBeVisible();
 
+    // Playbook Pengurus khusus staf — tabnya tidak boleh ada sama sekali
+    // untuk pengunjung publik (bukan cuma disembunyikan lewat CSS), dan
+    // endpoint PDF-nya sendiri juga wajib menolak akses tanpa sesi staf.
+    await expect(page.getByRole("tab", { name: "Playbook Pengurus" })).toHaveCount(0);
+    const anonResponse = await page.request.get("/api/playbook/pdf");
+    expect(anonResponse.status()).toBe(403);
+  });
+
+  test("tab Playbook Pengurus di halaman FAQ tampil untuk staf, tapi TIDAK untuk akun Jamaah", async ({ page }) => {
+    await login(page, ACCOUNTS.jamaah);
+    await page.goto("/faq");
+    await expect(page.getByRole("tab", { name: "Playbook Pengurus" })).toHaveCount(0);
+    const jamaahResponse = await page.request.get("/api/playbook/pdf");
+    expect(jamaahResponse.status()).toBe(403);
+
+    await page.context().clearCookies();
+    await login(page, ACCOUNTS.pengurus);
+    await page.goto("/faq");
     await page.getByRole("tab", { name: "Playbook Pengurus" }).click();
-    await expect(page.getByRole("heading", { name: "Playbook Pengurus & Jamaah" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Playbook Pengurus" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Unduh Playbook (PDF)" })).toBeVisible();
+
+    // Endpoint PDF-nya sendiri juga wajib menolak sesi yang tidak berhak,
+    // bukan cuma menyembunyikan tombolnya di UI (lihat
+    // src/app/api/playbook/pdf/route.ts).
+    const response = await page.request.get("/api/playbook/pdf");
+    expect(response.status()).toBe(200);
   });
 });

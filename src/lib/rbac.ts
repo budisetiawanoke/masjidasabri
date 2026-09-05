@@ -22,6 +22,10 @@ export const PERMISSIONS = {
   MANAGE_FOUNDATION_PROFILE: ["SUPER_ADMIN"],
   HANDLE_SUGGESTIONS: ["SUPER_ADMIN", "ADMIN"],
   VIEW_DASHBOARD: ["SUPER_ADMIN", "ADMIN", "BENDAHARA", "JAMAAH"],
+  // Playbook Pengurus (src/app/(public)/faq/page.tsx) berisi SOP internal —
+  // sengaja TIDAK termasuk JAMAAH walau VIEW_DASHBOARD mengizinkannya,
+  // karena akun JAMAAH cuma untuk pemantauan pribadi, bukan operasional.
+  VIEW_PLAYBOOK: ["SUPER_ADMIN", "ADMIN", "BENDAHARA"],
 } as const satisfies Record<string, readonly Role[]>;
 
 export type Permission = keyof typeof PERMISSIONS;
