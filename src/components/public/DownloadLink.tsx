@@ -1,27 +1,33 @@
-"use client";
-
-import type { ReactNode, MouseEvent } from "react";
+import type { ReactNode } from "react";
 
 /**
  * Tautan unduh berkas (PDF/CSV) — dipakai di semua tombol unduh publik:
  * bukti bayar (donasi/infaq/zakat/kurban) dan laporan detail per periode.
  *
- * RIWAYAT BUG (jangan ulangi): `<a href>` polos ke URL unduhan (header
- * Content-Disposition: attachment) TIDAK BOLEH dinavigasi langsung di
- * dalam WebView Android (Capacitor) — pernah dicoba dua pendekatan dan
- * DUA-DUANYA bermasalah:
- *   1. `<a href>` polos → diam saja, tidak terjadi apa-apa saat diketuk.
+ * RIWAYAT BUG (jangan ulangi — sudah dicoba 3 pendekatan sebelum ini):
+ *   1. `<a href>` polos tanpa perbaikan apa pun di sisi native → diam
+ *      saja, tidak terjadi apa-apa saat diketuk di APK.
  *   2. Plugin @capacitor/browser (`Browser.open()`) → JUSTRU MEMBUAT
- *      SELURUH APLIKASI HANG/MACET saat diketuk (kemungkinan panggilan
- *      async ke native yang tidak pernah selesai/gagal diam-diam).
+ *      SELURUH APLIKASI HANG/MACET saat diketuk.
+ *   3. `window.open(url, "_system")` tanpa dukungan multi-window di
+ *      WebView → kembali diam saja (window.open kemungkinan tidak
+ *      melakukan navigasi apa pun tanpa WebChromeClient.onCreateWindow
+ *      / setSupportMultipleWindows di sisi native).
  *
- * Solusi yang aman: `window.open(url, "_system")`. Capacitor SECARA
- * BAWAAN (tanpa plugin tambahan apa pun) mencegat pemanggilan window.open
- * dengan target "_system" dan mendelegasikannya ke browser sistem
- * (Chrome, dst.) lewat Android Intent — SEPENUHNYA di luar WebView
- * aplikasi, tanpa ada panggilan async ke native yang bisa macet/hang.
- * Di browser web biasa, window.open tetap bekerja normal (membuka tab
- * baru yang langsung memicu unduhan lewat Content-Disposition).
+ * Perbaikan yang benar ternyata di level NATIVE, bukan JavaScript:
+ * WebView Android butuh `DownloadListener` eksplisit untuk tahu harus
+ * berbuat apa saat menemukan respons unduhan (Content-Disposition:
+ * attachment) — tanpa itu, PERILAKU BAWAAN WebView memang diam saja,
+ * apa pun cara JS memicu navigasinya. Lihat
+ * android/app/src/main/java/org/masjidasabri/app/MainActivity.java —
+ * DownloadListener di sana melempar permintaan unduhan ke aplikasi
+ * eksternal (Chrome, dll.) lewat Intent.ACTION_VIEW.
+ *
+ * Karena perbaikannya di native, komponen ini sekarang CUKUP jadi
+ * `<a href>` biasa — navigasi WebView standar itu sendiri yang memicu
+ * DownloadListener. Tetap dijadikan komponen (bukan `<a>` langsung di
+ * tiap tempat pakai) supaya kalau suatu saat perlu penyesuaian lagi,
+ * cukup ubah satu tempat.
  */
 export function DownloadLink({
   href,
@@ -32,13 +38,8 @@ export function DownloadLink({
   className?: string;
   children: ReactNode;
 }) {
-  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    window.open(href, "_system");
-  };
-
   return (
-    <a href={href} onClick={handleClick} className={className}>
+    <a href={href} className={className}>
       {children}
     </a>
   );
