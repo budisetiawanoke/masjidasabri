@@ -113,7 +113,11 @@ export async function updateQurbanStatus(actor: Actor, id: string, status: strin
 // membangun pratinjau bukti bayar (ReceiptPreview) tanpa menduplikasi
 // pemetaan label ini.
 export const ZAKAT_TYPE_LABEL: Record<string, string> = { FITRAH: "Zakat Fitrah", MAAL: "Zakat Maal" };
-export const ANIMAL_TYPE_LABEL: Record<string, string> = { SAPI: "Sapi (patungan)", KAMBING: "Kambing", DOMBA: "Domba" };
+export const ANIMAL_TYPE_LABEL: Record<string, string> = {
+  SAPI_EKOR: "Sapi (per ekor)",
+  SAPI_PATUNGAN: "Sapi (Patungan)",
+  KAMBING_DOMBA: "Kambing/Domba",
+};
 
 /**
  * Total per jenis zakat (uang & beras terpisah, tidak dijumlahkan jadi satu

@@ -5,6 +5,17 @@ mengikuti [Keep a Changelog](https://keepachangelog.com/), dan nomor versi
 mengikuti [Semantic Versioning](https://semver.org/) — sesuai versi yang
 ditampilkan di footer setiap halaman publik (`package.json` → `version`).
 
+## [0.2.2] — 2026-09-05
+
+### Diubah
+- Jenis hewan kurban diubah dari tiga pilihan lama (Sapi (patungan),
+  Kambing, Domba) menjadi tiga pilihan baru: **Sapi (per ekor)**,
+  **Sapi (Patungan)**, dan **Kambing/Domba** (Kambing & Domba digabung
+  jadi satu pilihan). Berlaku di formulir pendaftaran kurban publik,
+  laporan publik per jenis, dan bukti bayar. Data pendaftaran kurban
+  yang sudah ada dimigrasikan otomatis ke kode baru (KAMBING/DOMBA ->
+  KAMBING_DOMBA, SAPI -> SAPI_PATUNGAN) tanpa kehilangan riwayat.
+
 ## [0.2.1] — 2026-09-05
 
 ### Diubah

@@ -136,10 +136,10 @@ export function RegisterQurbanForm() {
         )}
         <form action={formAction} className="space-y-4">
           <FieldGroup label="Jenis Hewan" htmlFor="animalType" error={state.fieldErrors?.animalType}>
-            <Select id="animalType" name="animalType" defaultValue="KAMBING" className="mt-1">
-              <option value="KAMBING">Kambing</option>
-              <option value="DOMBA">Domba</option>
-              <option value="SAPI">Sapi (patungan)</option>
+            <Select id="animalType" name="animalType" defaultValue="KAMBING_DOMBA" className="mt-1">
+              <option value="SAPI_EKOR">Sapi (per ekor)</option>
+              <option value="SAPI_PATUNGAN">Sapi (Patungan)</option>
+              <option value="KAMBING_DOMBA">Kambing/Domba</option>
             </Select>
           </FieldGroup>
           <FieldGroup label="Atas Nama" htmlFor="qurbanFor" error={state.fieldErrors?.qurbanFor}>

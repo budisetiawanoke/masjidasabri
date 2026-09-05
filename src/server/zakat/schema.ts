@@ -12,7 +12,7 @@ export const zakatRecordSchema = z.object({
 export type ZakatRecordInput = z.infer<typeof zakatRecordSchema>;
 
 export const qurbanRecordSchema = z.object({
-  animalType: z.enum(["SAPI", "KAMBING", "DOMBA"]),
+  animalType: z.enum(["SAPI_EKOR", "SAPI_PATUNGAN", "KAMBING_DOMBA"]),
   qurbanFor: z.string().trim().min(2).max(150),
   contactPhone: z.string().trim().max(30).optional().nullable(),
   sharesCount: z.coerce.number().int().min(1).default(1),

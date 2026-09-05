@@ -21,9 +21,9 @@ const ZAKAT_TYPE_LABEL: Record<string, string> = {
 };
 
 const ANIMAL_TYPE_LABEL: Record<string, string> = {
-  SAPI: "Sapi (patungan)",
-  KAMBING: "Kambing",
-  DOMBA: "Domba",
+  SAPI_EKOR: "Sapi (per ekor)",
+  SAPI_PATUNGAN: "Sapi (Patungan)",
+  KAMBING_DOMBA: "Kambing/Domba",
 };
 
 /**

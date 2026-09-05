@@ -240,7 +240,7 @@ model ZakatRecord {
 
 model QurbanRecord {
   id            String   @id @default(cuid())
-  animalType    String   // "SAPI" | "KAMBING" | "DOMBA"
+  animalType    String   // "SAPI_EKOR" | "SAPI_PATUNGAN" | "KAMBING_DOMBA"
   qurbanFor     String   // atas nama
   contactPhone  String?
   sharesCount   Int      @default(1)
