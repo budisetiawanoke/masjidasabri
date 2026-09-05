@@ -18,6 +18,7 @@ const NAV = [
   { href: "/infaq-sadaqah", label: "Infaq & Sadaqah" },
   { href: "/donasi", label: "Donasi" },
   { href: "/kotak-saran", label: "Kotak Saran" },
+  { href: "/faq", label: "FAQ" },
 ];
 
 export async function PublicHeader() {

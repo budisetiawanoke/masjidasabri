@@ -100,4 +100,20 @@ test.describe("Situs publik", () => {
     await menuButton.click();
     await expect(page.getByText("Masuk Pengurus")).toBeVisible();
   });
+
+  test("halaman FAQ menampilkan pertanyaan umum, buku panduan, dan playbook lewat tab", async ({ page }) => {
+    await page.goto("/faq");
+    // Tab "Pertanyaan Umum" aktif secara default.
+    await expect(page.getByRole("button", { name: "Apa itu aplikasi Masjid ASABRI ini?" })).toBeVisible();
+    await page.getByRole("button", { name: "Apa itu aplikasi Masjid ASABRI ini?" }).click();
+    await expect(page.getByText(/sistem pengelolaan jamaah Masjid ASABRI/)).toBeVisible();
+
+    await page.getByRole("tab", { name: "Buku Panduan" }).click();
+    await expect(page.getByRole("heading", { name: "Buku Panduan Penggunaan" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Unduh Buku Panduan (PDF)" })).toBeVisible();
+
+    await page.getByRole("tab", { name: "Playbook Pengurus" }).click();
+    await expect(page.getByRole("heading", { name: "Playbook Pengurus & Jamaah" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Unduh Playbook (PDF)" })).toBeVisible();
+  });
 });
