@@ -6,6 +6,7 @@ import { DownloadLink } from "@/components/public/DownloadLink";
 import { BismillahCalligraphy } from "@/components/brand/BismillahCalligraphy";
 import { IslamicPattern } from "@/components/brand/IslamicPattern";
 import { getMonthlyPublicReport, getBalanceSummary } from "@/server/finance/service";
+import type { MonthlyReportData } from "@/server/pdf/FinancialReportDocument";
 import { formatRupiah, monthLabel } from "@/lib/format";
 import { monthOptions } from "@/lib/report-periods";
 
@@ -13,6 +14,68 @@ export const metadata: Metadata = { title: "Laporan Keuangan" };
 // Render dinamis (bukan pre-render statis) — lihat penjelasan lengkap di
 // src/app/(public)/page.tsx.
 export const dynamic = "force-dynamic";
+
+/**
+ * Tabel rincian + ringkasan total — dipakai DUA KALI: langsung di badan
+ * halaman (selalu terlihat) DAN sebagai isi modal pratinjau tombol unduh
+ * (lihat src/components/public/DownloadLink.tsx), supaya jamaah tetap
+ * melihat pratinjau data begitu menekan tombol unduh.
+ */
+function FinancialTablePreview({ report, year, month }: { report: MonthlyReportData; year: number; month: number }) {
+  return (
+    <>
+      {report.transactionCount === 0 ? (
+        <p className="p-6 text-sm text-center text-foreground/70">Belum ada transaksi disahkan pada periode {monthLabel(year, month)}.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border-subtle bg-brand-green-900/5 text-left text-xs font-bold uppercase tracking-wider text-brand-green-900">
+                <th className="py-3 px-4">Kategori</th>
+                <th className="py-3 px-4">Jenis</th>
+                <th className="py-3 px-4 text-right">Jumlah Transaksi</th>
+                <th className="py-3 px-4 text-right">Total (Rp)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border-subtle/60">
+              {report.categories.map((c) => (
+                <tr key={c.name} className="hover:bg-brand-green-50/30 transition-colors">
+                  <td className="py-3 px-4 font-semibold text-brand-green-900">{c.name}</td>
+                  <td className="py-3 px-4">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                      c.kind === "MASUK"
+                        ? "bg-emerald-100 text-emerald-900 border border-emerald-300/40"
+                        : "bg-orange-100 text-brand-terracotta-700 border border-orange-300/40"
+                    }`}>
+                      {c.kind === "MASUK" ? "Pemasukan" : "Pengeluaran"}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-right font-medium text-foreground/80">{c.count}</td>
+                  <td className="py-3 px-4 text-right font-bold text-brand-green-900">{formatRupiah(c.total)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="m-4 sm:m-0 mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t-2 border-border-subtle pt-4 text-sm bg-brand-cream-50/50 p-4 rounded-2xl">
+        <div className="p-3 rounded-xl bg-white border border-border-subtle/80">
+          <p className="text-xs font-bold uppercase tracking-wider text-foreground/70">Total Masuk</p>
+          <p className="font-display text-lg font-bold text-emerald-800">{formatRupiah(report.totalMasuk)}</p>
+        </div>
+        <div className="p-3 rounded-xl bg-white border border-border-subtle/80">
+          <p className="text-xs font-bold uppercase tracking-wider text-foreground/70">Total Keluar</p>
+          <p className="font-display text-lg font-bold text-brand-terracotta-700">{formatRupiah(report.totalKeluar)}</p>
+        </div>
+        <div className="p-3 rounded-xl bg-brand-gold-100/60 border border-brand-gold-500/40">
+          <p className="text-xs font-bold uppercase tracking-wider text-brand-green-900">Selisih Bersih</p>
+          <p className="font-display text-lg font-extrabold text-brand-green-900">{formatRupiah(report.net)}</p>
+        </div>
+      </div>
+    </>
+  );
+}
 
 export default async function LaporanKeuanganPage({
   searchParams,
@@ -121,7 +184,7 @@ export default async function LaporanKeuanganPage({
             <DownloadLink
               href={`/api/laporan-keuangan/csv?year=${year}&month=${month}`}
               title={`Laporan Keuangan — ${monthLabel(year, month)}`}
-              kind="csv"
+              previewContent={<FinancialTablePreview report={report} year={year} month={month} />}
               className="flex items-center gap-1.5 rounded-xl border border-emerald-700/30 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-900 hover:bg-emerald-100 transition-colors shadow-xs"
             >
               <FileSpreadsheet className="h-3.5 w-3.5" aria-hidden />
@@ -130,7 +193,7 @@ export default async function LaporanKeuanganPage({
             <DownloadLink
               href={`/api/laporan-keuangan/pdf?year=${year}&month=${month}`}
               title={`Laporan Keuangan — ${monthLabel(year, month)}`}
-              kind="pdf"
+              previewContent={<FinancialTablePreview report={report} year={year} month={month} />}
               className="flex items-center gap-1.5 rounded-xl border border-brand-green-900/30 bg-brand-green-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-green-700 transition-colors shadow-xs"
             >
               <Download className="h-3.5 w-3.5" aria-hidden />
@@ -140,55 +203,7 @@ export default async function LaporanKeuanganPage({
         </CardHeader>
 
         <CardBody className="p-0 sm:p-6">
-          {report.transactionCount === 0 ? (
-            <p className="p-6 text-sm text-center text-foreground/70">Belum ada transaksi disahkan pada periode {monthLabel(year, month)}.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border-subtle bg-brand-green-900/5 text-left text-xs font-bold uppercase tracking-wider text-brand-green-900">
-                    <th className="py-3 px-4">Kategori</th>
-                    <th className="py-3 px-4">Jenis</th>
-                    <th className="py-3 px-4 text-right">Jumlah Transaksi</th>
-                    <th className="py-3 px-4 text-right">Total (Rp)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-subtle/60">
-                  {report.categories.map((c) => (
-                    <tr key={c.name} className="hover:bg-brand-green-50/30 transition-colors">
-                      <td className="py-3 px-4 font-semibold text-brand-green-900">{c.name}</td>
-                      <td className="py-3 px-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                          c.kind === "MASUK" 
-                            ? "bg-emerald-100 text-emerald-900 border border-emerald-300/40" 
-                            : "bg-orange-100 text-brand-terracotta-700 border border-orange-300/40"
-                        }`}>
-                          {c.kind === "MASUK" ? "Pemasukan" : "Pengeluaran"}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right font-medium text-foreground/80">{c.count}</td>
-                      <td className="py-3 px-4 text-right font-bold text-brand-green-900">{formatRupiah(c.total)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          <div className="m-4 sm:m-0 mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t-2 border-border-subtle pt-4 text-sm bg-brand-cream-50/50 p-4 rounded-2xl">
-            <div className="p-3 rounded-xl bg-white border border-border-subtle/80">
-              <p className="text-xs font-bold uppercase tracking-wider text-foreground/70">Total Masuk</p>
-              <p className="font-display text-lg font-bold text-emerald-800">{formatRupiah(report.totalMasuk)}</p>
-            </div>
-            <div className="p-3 rounded-xl bg-white border border-border-subtle/80">
-              <p className="text-xs font-bold uppercase tracking-wider text-foreground/70">Total Keluar</p>
-              <p className="font-display text-lg font-bold text-brand-terracotta-700">{formatRupiah(report.totalKeluar)}</p>
-            </div>
-            <div className="p-3 rounded-xl bg-brand-gold-100/60 border border-brand-gold-500/40">
-              <p className="text-xs font-bold uppercase tracking-wider text-brand-green-900">Selisih Bersih</p>
-              <p className="font-display text-lg font-extrabold text-brand-green-900">{formatRupiah(report.net)}</p>
-            </div>
-          </div>
+          <FinancialTablePreview report={report} year={year} month={month} />
         </CardBody>
       </Card>
     </div>

@@ -8,36 +8,45 @@ import { X, Download as DownloadIcon } from "lucide-react";
  * bukti bayar (donasi/infaq/zakat/kurban) dan laporan (keuangan + detail
  * per periode donasi/infaq/zakat/kurban).
  *
- * Ketuk tombol → muncul modal pratinjau di dalam aplikasi (bukan langsung
- * lompat ke aplikasi lain) berisi isi PDF (lewat <iframe>, WebView Android
- * modern bisa merender PDF langsung) atau pesan singkat untuk CSV, dengan
- * tombol "Unduh" dan "Tutup" — sesuai permintaan pengguna, supaya
- * pengalamannya tetap terasa di dalam aplikasi, bukan berpindah aplikasi
- * secara tiba-tiba.
+ * Ketuk tombol → muncul modal pratinjau di dalam aplikasi berisi
+ * `previewContent` (HTML biasa, dioper oleh pemanggil — lihat
+ * ReceiptPreviewCard.tsx untuk bukti bayar, atau tabel yang sudah ada di
+ * halaman untuk laporan), dengan tombol "Unduh" dan "Tutup".
  *
- * Tombol "Unduh" di dalam modal tetap `<a href>` biasa ke URL berkasnya —
- * begitu diketuk, WebView Android menyerahkan penanganannya ke
- * DownloadListener native (lihat
+ * RIWAYAT (jangan ulangi — sudah 4 percobaan sebelum versi ini):
+ *   1. `<a href>` polos → diam saja di APK.
+ *   2. Plugin @capacitor/browser → membuat aplikasi hang.
+ *   3. `window.open(url, "_system")` → diam saja lagi (WebView tanpa
+ *      dukungan multi-window tidak benar-benar menavigasi).
+ *   4. Modal dengan `<iframe src={pdfUrl}>` untuk pratinjau → modal
+ *      terbuka tapi ISINYA KOSONG di WebView Android (dites di Samsung
+ *      S24 Ultra) — WebView Android TIDAK PUNYA renderer PDF bawaan
+ *      untuk konten ter-embed seperti iframe/embed, beda dari Chrome
+ *      desktop yang punya plugin PDF sendiri.
+ *
+ * Solusi final: pratinjau dirender sebagai HTML BIASA (bukan menyisipkan
+ * berkas PDF apa pun) — bekerja identik di semua platform tanpa
+ * bergantung pada dukungan renderer PDF apa pun. Tombol "Unduh" di dalam
+ * modal tetap `<a href>` biasa ke URL berkas sungguhan — begitu diketuk,
+ * WebView menyerahkan penanganannya ke DownloadListener native (lihat
  * android/app/src/main/java/org/masjidasabri/app/MainActivity.java) yang
  * melempar ke aplikasi eksternal (Chrome/Google PDF Viewer) untuk
- * benar-benar menyimpan berkasnya — WebView sendiri tidak punya
- * kemampuan menyimpan berkas ke penyimpanan perangkat, jadi langkah itu
- * TETAP dibutuhkan meski sudah ada modal pratinjau ini.
+ * benar-benar menyimpan berkasnya.
  */
 export function DownloadLink({
   href,
   className,
   children,
   title,
-  kind,
+  previewContent,
 }: {
   href: string;
   className?: string;
   children: ReactNode;
   /** Judul yang tampil di header modal, mis. "Bukti Bayar Infaq & Sadaqah". */
   title: string;
-  /** "pdf" dirender lewat <iframe> (WebView modern bisa langsung menampilkan PDF); "csv" cuma pesan singkat (tidak ada pratinjau tabel di sini). */
-  kind: "pdf" | "csv";
+  /** Isi pratinjau (HTML biasa) — lihat komentar di atas soal kenapa bukan PDF. */
+  previewContent: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -53,7 +62,7 @@ export function DownloadLink({
           onClick={() => setOpen(false)}
         >
           <div
-            className="flex h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+            className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-border-subtle p-4">
@@ -68,15 +77,7 @@ export function DownloadLink({
               </button>
             </div>
 
-            <div className="flex-1 overflow-auto bg-gray-100">
-              {kind === "pdf" ? (
-                <iframe src={href} title={title} className="h-full w-full border-0" />
-              ) : (
-                <div className="flex h-full items-center justify-center p-6 text-center text-sm text-foreground/70">
-                  Pratinjau tidak tersedia untuk berkas Excel/CSV — ketuk &quot;Unduh&quot; di bawah untuk membukanya.
-                </div>
-              )}
-            </div>
+            <div className="flex-1 overflow-auto">{previewContent}</div>
 
             <div className="flex items-center justify-end gap-2 border-t border-border-subtle p-3">
               <button

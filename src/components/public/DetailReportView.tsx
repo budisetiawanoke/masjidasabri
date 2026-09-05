@@ -5,6 +5,66 @@ import { DownloadLink } from "@/components/public/DownloadLink";
 import type { LoadedDetailReport } from "@/server/pdf/detail-report-data";
 
 /**
+ * Ringkasan + tabel rincian — dipakai DUA KALI: langsung di badan halaman
+ * (selalu terlihat) DAN sebagai isi modal pratinjau tombol unduh (lihat
+ * DownloadLink.tsx) supaya jamaah tetap melihat pratinjau begitu menekan
+ * tombol unduh, konsisten dengan bukti bayar (ReceiptPreviewCard.tsx).
+ * Satu fungsi dipakai bersama supaya keduanya tidak pernah berbeda isi.
+ */
+function ReportSummaryAndTable({ report, compact }: { report: LoadedDetailReport; compact?: boolean }) {
+  return (
+    <>
+      <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 ${compact ? "" : "sm:p-0 sm:mb-4"}`}>
+        {report.summary.map((s) => (
+          <div key={s.label} className="p-3 rounded-xl bg-brand-cream-50/70 border border-border-subtle">
+            <p className="text-xs font-bold uppercase tracking-wider text-foreground/60">{s.label}</p>
+            <p className="font-display text-lg font-bold text-brand-green-900">{s.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {report.rows.length === 0 ? (
+        <p className="p-6 text-sm text-center text-foreground/70">{report.emptyMessage}</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-y border-border-subtle bg-brand-green-900/5 text-left text-xs font-bold uppercase tracking-wider text-brand-green-900">
+                {report.columns.map((c) => (
+                  <th key={c.key} className={`py-3 px-4 ${c.align === "right" ? "text-right" : ""}`}>
+                    {c.header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border-subtle/60">
+              {report.rows.map((row, i) => (
+                <tr key={i} className="hover:bg-brand-green-50/30 transition-colors">
+                  {report.columns.map((c) => (
+                    <td
+                      key={c.key}
+                      className={`py-3 px-4 ${c.align === "right" ? "text-right font-semibold text-brand-green-900" : ""}`}
+                    >
+                      {row[c.key] ?? "-"}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {!compact && (
+        <p className="p-4 text-xs leading-relaxed text-foreground/60 border-t border-border-subtle mt-4">
+          {report.disclaimer}
+        </p>
+      )}
+    </>
+  );
+}
+
+/**
  * Tampilan generik halaman detail laporan (per kampanye donasi/peruntukan
  * infaq/jenis zakat/jenis kurban) — satu komponen dipakai oleh keempat
  * halaman /donasi/laporan/[id], /infaq-sadaqah/laporan/[id],
@@ -48,7 +108,7 @@ export function DetailReportView({
             <DownloadLink
               href={`/api/laporan-detail/${downloadKind}/${downloadId}/csv?${query}`}
               title={report.title}
-              kind="csv"
+              previewContent={<ReportSummaryAndTable report={report} compact />}
               className="flex items-center gap-1.5 rounded-xl border border-emerald-700/30 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-900 hover:bg-emerald-100 transition-colors shadow-xs"
             >
               <FileSpreadsheet className="h-3.5 w-3.5" aria-hidden />
@@ -57,7 +117,7 @@ export function DetailReportView({
             <DownloadLink
               href={`/api/laporan-detail/${downloadKind}/${downloadId}/pdf?${query}`}
               title={report.title}
-              kind="pdf"
+              previewContent={<ReportSummaryAndTable report={report} compact />}
               className="flex items-center gap-1.5 rounded-xl border border-brand-green-900/30 bg-brand-green-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-green-700 transition-colors shadow-xs"
             >
               <Download className="h-3.5 w-3.5" aria-hidden />
@@ -67,47 +127,7 @@ export function DetailReportView({
         </CardHeader>
 
         <CardBody className="p-0 sm:p-6">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 sm:p-0 sm:mb-4">
-            {report.summary.map((s) => (
-              <div key={s.label} className="p-3 rounded-xl bg-brand-cream-50/70 border border-border-subtle">
-                <p className="text-xs font-bold uppercase tracking-wider text-foreground/60">{s.label}</p>
-                <p className="font-display text-lg font-bold text-brand-green-900">{s.value}</p>
-              </div>
-            ))}
-          </div>
-
-          {report.rows.length === 0 ? (
-            <p className="p-6 text-sm text-center text-foreground/70">{report.emptyMessage}</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-y border-border-subtle bg-brand-green-900/5 text-left text-xs font-bold uppercase tracking-wider text-brand-green-900">
-                    {report.columns.map((c) => (
-                      <th key={c.key} className={`py-3 px-4 ${c.align === "right" ? "text-right" : ""}`}>
-                        {c.header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-subtle/60">
-                  {report.rows.map((row, i) => (
-                    <tr key={i} className="hover:bg-brand-green-50/30 transition-colors">
-                      {report.columns.map((c) => (
-                        <td key={c.key} className={`py-3 px-4 ${c.align === "right" ? "text-right font-semibold text-brand-green-900" : ""}`}>
-                          {row[c.key] ?? "-"}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          <p className="p-4 text-xs leading-relaxed text-foreground/60 border-t border-border-subtle mt-4">
-            {report.disclaimer}
-          </p>
+          <ReportSummaryAndTable report={report} />
         </CardBody>
       </Card>
     </div>

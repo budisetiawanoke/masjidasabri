@@ -109,8 +109,11 @@ export async function updateQurbanStatus(actor: Actor, id: string, status: strin
 
 // ---------- Laporan publik (dapat dilihat jamaah tanpa login) ----------
 
-const ZAKAT_TYPE_LABEL: Record<string, string> = { FITRAH: "Zakat Fitrah", MAAL: "Zakat Maal" };
-const ANIMAL_TYPE_LABEL: Record<string, string> = { SAPI: "Sapi (patungan)", KAMBING: "Kambing", DOMBA: "Domba" };
+// Diekspor — juga dipakai src/app/(public)/zakat-kurban/actions.ts untuk
+// membangun pratinjau bukti bayar (ReceiptPreview) tanpa menduplikasi
+// pemetaan label ini.
+export const ZAKAT_TYPE_LABEL: Record<string, string> = { FITRAH: "Zakat Fitrah", MAAL: "Zakat Maal" };
+export const ANIMAL_TYPE_LABEL: Record<string, string> = { SAPI: "Sapi (patungan)", KAMBING: "Kambing", DOMBA: "Domba" };
 
 /**
  * Total per jenis zakat (uang & beras terpisah, tidak dijumlahkan jadi satu

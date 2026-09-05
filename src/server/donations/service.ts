@@ -132,6 +132,9 @@ export async function registerDonationPublic(input: DonationRecordInput, proofFi
       amount: input.amount ?? null,
       proofImageUrl,
     },
+    // include campaign — dipakai submitDonationAction() untuk membangun
+    // pratinjau bukti bayar (ReceiptPreview) tanpa query tambahan.
+    include: { campaign: { select: { title: true } } },
   });
 }
 
@@ -152,7 +155,10 @@ export async function markDonationConfirmed(actor: Actor, id: string) {
 
 // ---------- Laporan publik (dapat dilihat jamaah tanpa login) ----------
 
-const INFAQ_CATEGORY_LABEL: Record<string, string> = {
+// Diekspor (bukan cuma dipakai internal file ini) — juga dipakai
+// src/app/(public)/infaq-sadaqah/actions.ts untuk membangun pratinjau
+// bukti bayar (ReceiptPreview) tanpa menduplikasi pemetaan label ini.
+export const INFAQ_CATEGORY_LABEL: Record<string, string> = {
   OPERASIONAL: "Operasional Masjid",
   DHUAFA: "Dhuafa",
   ANAK_YATIM: "Anak Yatim",

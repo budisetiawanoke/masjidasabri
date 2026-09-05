@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { registerZakatAction, registerQurbanAction } from "@/app/(public)/zakat-kurban/actions";
 import { initialActionState } from "@/lib/action-state";
 import { DownloadLink } from "@/components/public/DownloadLink";
+import { ReceiptPreviewCard } from "@/components/public/ReceiptPreviewCard";
 import { Send, CheckCircle2, AlertTriangle, Heart, Camera, FileDown } from "lucide-react";
 
 const PROOF_INPUT_CLASS =
@@ -30,11 +31,11 @@ export function RegisterZakatForm() {
               <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-green-700" />
               <span>{state.message}</span>
             </div>
-            {state.receiptUrl && (
+            {state.receiptUrl && state.receiptPreview && (
               <DownloadLink
                 href={state.receiptUrl}
                 title="Bukti Bayar Zakat"
-                kind="pdf"
+                previewContent={<ReceiptPreviewCard preview={state.receiptPreview} />}
                 className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-green-700/40 bg-brand-green-50/60 p-2.5 text-sm font-bold text-brand-green-900 hover:bg-brand-green-50 transition-colors"
               >
                 <FileDown className="h-4 w-4 text-brand-green-700" />
@@ -114,11 +115,11 @@ export function RegisterQurbanForm() {
               <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-green-700" />
               <span>{state.message}</span>
             </div>
-            {state.receiptUrl && (
+            {state.receiptUrl && state.receiptPreview && (
               <DownloadLink
                 href={state.receiptUrl}
                 title="Bukti Bayar Kurban"
-                kind="pdf"
+                previewContent={<ReceiptPreviewCard preview={state.receiptPreview} />}
                 className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-green-700/40 bg-brand-green-50/60 p-2.5 text-sm font-bold text-brand-green-900 hover:bg-brand-green-50 transition-colors"
               >
                 <FileDown className="h-4 w-4 text-brand-green-700" />

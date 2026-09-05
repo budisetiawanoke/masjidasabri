@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { submitDonationAction } from "@/app/(public)/donasi/actions";
 import { initialActionState } from "@/lib/action-state";
 import { DownloadLink } from "@/components/public/DownloadLink";
+import { ReceiptPreviewCard } from "@/components/public/ReceiptPreviewCard";
 import { Send, CheckCircle2, AlertTriangle, Camera, FileDown } from "lucide-react";
 
 type Campaign = { id: string; title: string };
@@ -35,11 +36,11 @@ export function DonationForm({ campaigns }: { campaigns: Campaign[] }) {
               <CheckCircle2 className="h-5 w-5 shrink-0 text-brand-green-700" />
               <span>{state.message}</span>
             </div>
-            {state.receiptUrl && (
+            {state.receiptUrl && state.receiptPreview && (
               <DownloadLink
                 href={state.receiptUrl}
                 title="Bukti Bayar Donasi"
-                kind="pdf"
+                previewContent={<ReceiptPreviewCard preview={state.receiptPreview} />}
                 className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-gold-500/60 bg-brand-gold-50/60 p-3 text-sm font-bold text-brand-green-900 hover:bg-brand-gold-50 transition-colors"
               >
                 <FileDown className="h-4 w-4 text-brand-gold-600" />

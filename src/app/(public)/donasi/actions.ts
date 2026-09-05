@@ -5,6 +5,7 @@ import { donationRecordSchema } from "@/server/donations/schema";
 import { registerDonationPublic } from "@/server/donations/service";
 import { zodErrorToFieldErrors, errorMessage, type ActionState } from "@/lib/action-state";
 import { UploadError } from "@/lib/upload";
+import { formatRupiah } from "@/lib/format";
 
 export async function submitDonationAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = donationRecordSchema.safeParse({
@@ -27,6 +28,13 @@ export async function submitDonationAction(_prev: ActionState, formData: FormDat
       ok: true,
       message: "Jazakumullahu khairan. Donasi Anda telah kami catat dan akan diperiksa pengurus.",
       receiptUrl: `/api/bukti-bayar/donasi/${record.id}`,
+      receiptPreview: {
+        kind: "DONASI",
+        donorName: record.donorName,
+        detailLabel: "Kampanye",
+        detailValue: record.campaign.title,
+        amountLabel: record.amount ? formatRupiah(record.amount) : null,
+      },
     };
   } catch (e) {
     if (e instanceof UploadError) return { ok: false, message: e.message };

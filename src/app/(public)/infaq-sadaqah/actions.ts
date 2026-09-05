@@ -2,9 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { infaqRecordSchema } from "@/server/donations/schema";
-import { registerInfaqPublic } from "@/server/donations/service";
+import { registerInfaqPublic, INFAQ_CATEGORY_LABEL } from "@/server/donations/service";
 import { zodErrorToFieldErrors, errorMessage, type ActionState } from "@/lib/action-state";
 import { UploadError } from "@/lib/upload";
+import { formatRupiah } from "@/lib/format";
 
 export async function submitInfaqAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = infaqRecordSchema.safeParse({
@@ -31,6 +32,13 @@ export async function submitInfaqAction(_prev: ActionState, formData: FormData):
       ok: true,
       message: "Jazakumullahu khairan. Infaq/sadaqah Anda telah kami catat dan akan diperiksa pengurus.",
       receiptUrl: `/api/bukti-bayar/infaq/${record.id}`,
+      receiptPreview: {
+        kind: "INFAQ",
+        donorName: record.donorName,
+        detailLabel: "Peruntukan",
+        detailValue: INFAQ_CATEGORY_LABEL[record.category] ?? record.category,
+        amountLabel: record.amount ? formatRupiah(record.amount) : null,
+      },
     };
   } catch (e) {
     if (e instanceof UploadError) return { ok: false, message: e.message };
