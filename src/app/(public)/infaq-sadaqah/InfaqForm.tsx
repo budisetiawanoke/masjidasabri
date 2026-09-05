@@ -24,6 +24,8 @@ export function InfaqForm() {
             {state.receiptUrl && (
               <DownloadLink
                 href={state.receiptUrl}
+                title="Bukti Bayar Infaq & Sadaqah"
+                kind="pdf"
                 className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-green-700/40 bg-brand-green-50/60 p-3 text-sm font-bold text-brand-green-900 hover:bg-brand-green-50 transition-colors"
               >
                 <FileDown className="h-4 w-4 text-brand-green-700" />

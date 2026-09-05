@@ -38,6 +38,8 @@ export function DonationForm({ campaigns }: { campaigns: Campaign[] }) {
             {state.receiptUrl && (
               <DownloadLink
                 href={state.receiptUrl}
+                title="Bukti Bayar Donasi"
+                kind="pdf"
                 className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-gold-500/60 bg-brand-gold-50/60 p-3 text-sm font-bold text-brand-green-900 hover:bg-brand-gold-50 transition-colors"
               >
                 <FileDown className="h-4 w-4 text-brand-gold-600" />

@@ -21,9 +21,13 @@ test.describe("Situs publik", () => {
     await expect(page.getByRole("heading", { name: /Rincian/ })).toBeVisible();
   });
 
-  test("tombol Unduh PDF menghasilkan berkas PDF valid berisi data periode yang sama", async ({ page, request }) => {
+  test("tombol Unduh PDF membuka modal pratinjau berisi PDF valid untuk periode yang sama", async ({ page, request }) => {
     await page.goto("/laporan-keuangan?year=2026&month=8");
-    const downloadLink = page.getByRole("link", { name: "Unduh PDF" });
+    // Tombol "Unduh PDF" membuka modal pratinjau dulu (lihat
+    // src/components/public/DownloadLink.tsx) — tautan unduhan
+    // sesungguhnya ada di dalam modal, bukan langsung di tombolnya.
+    await page.getByRole("button", { name: "Unduh PDF" }).click();
+    const downloadLink = page.getByRole("link", { name: "Unduh" });
     const href = await downloadLink.getAttribute("href");
     expect(href).toContain("year=2026");
     expect(href).toContain("month=8");

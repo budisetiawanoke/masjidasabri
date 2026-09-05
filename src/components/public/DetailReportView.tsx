@@ -47,6 +47,8 @@ export function DetailReportView({
           <div className="flex flex-wrap items-center gap-2">
             <DownloadLink
               href={`/api/laporan-detail/${downloadKind}/${downloadId}/csv?${query}`}
+              title={report.title}
+              kind="csv"
               className="flex items-center gap-1.5 rounded-xl border border-emerald-700/30 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-900 hover:bg-emerald-100 transition-colors shadow-xs"
             >
               <FileSpreadsheet className="h-3.5 w-3.5" aria-hidden />
@@ -54,6 +56,8 @@ export function DetailReportView({
             </DownloadLink>
             <DownloadLink
               href={`/api/laporan-detail/${downloadKind}/${downloadId}/pdf?${query}`}
+              title={report.title}
+              kind="pdf"
               className="flex items-center gap-1.5 rounded-xl border border-brand-green-900/30 bg-brand-green-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-green-700 transition-colors shadow-xs"
             >
               <Download className="h-3.5 w-3.5" aria-hidden />
