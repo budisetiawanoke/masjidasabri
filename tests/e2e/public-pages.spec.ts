@@ -9,6 +9,24 @@ test.describe("Situs publik", () => {
     await expect(page.getByText("Transparansi Kas").first()).toBeVisible();
   });
 
+  test("beranda menampilkan kartu unduh aplikasi Android, dan endpoint unduhannya menyajikan berkas APK sungguhan", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await expect(page.getByText("Pasang Aplikasi Android")).toBeVisible();
+    const unduhLink = page.getByRole("link", { name: "Unduh" });
+    await expect(unduhLink).toHaveAttribute("href", "/api/download-apk");
+
+    const response = await page.request.get("/api/download-apk");
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toBe("application/vnd.android.package-archive");
+    const body = await response.body();
+    // Tanda tangan berkas ZIP/APK ("PK\x03\x04") — memastikan yang
+    // tersaji benar-benar berkas APK, bukan halaman error yang kebetulan
+    // lolos status 200.
+    expect(body.subarray(0, 4)).toEqual(Buffer.from([0x50, 0x4b, 0x03, 0x04]));
+  });
+
   test("halaman jadwal sholat menampilkan enam waktu sholat", async ({ page }) => {
     await page.goto("/jadwal-sholat");
     await expect(page.getByText("Subuh")).toBeVisible();

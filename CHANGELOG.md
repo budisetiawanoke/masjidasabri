@@ -5,6 +5,28 @@ mengikuti [Keep a Changelog](https://keepachangelog.com/), dan nomor versi
 mengikuti [Semantic Versioning](https://semver.org/) — sesuai versi yang
 ditampilkan di footer setiap halaman publik (`package.json` → `version`).
 
+## [0.3.0] — 2026-09-05
+
+### Ditambahkan
+- **Unduhan resmi aplikasi Android** langsung dari situs: kartu "Pasang
+  Aplikasi Android" di halaman Beranda, mengunduh berkas APK yang sudah
+  ditandatangani lewat `/api/download-apk`. Sebelumnya APK hanya
+  dibagikan manual oleh pengurus.
+- APK rilis pertama kini ditandatangani dengan kunci rilis resmi
+  (`android/app/masjidasabri-release.keystore`, tidak di-commit ke git
+  — lihat `docs/DEPLOYMENT.md` untuk cara merilis versi berikutnya).
+  `versionCode`/`versionName` aplikasi Android kini disamakan dengan
+  versi web di `package.json`.
+- FAQ dan Buku Panduan Penggunaan diperbarui dengan pertanyaan &
+  langkah-langkah cara mengunduh dan memasang APK (termasuk soal
+  peringatan "sumber tidak dikenal" yang normal muncul saat pertama
+  pasang).
+
+### Diperbaiki
+- FAQ dan Buku Panduan Penggunaan sempat menyebut jenis hewan kurban
+  lama (Sapi/Kambing/Domba) — sudah diperbarui mengikuti perubahan di
+  v0.2.2 (Sapi (per ekor), Sapi (Patungan), Kambing/Domba).
+
 ## [0.2.2] — 2026-09-05
 
 ### Diubah

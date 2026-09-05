@@ -174,3 +174,45 @@ sampai ±10 menit). Jangan buru-buru trigger rollout baru lagi kalau
 baru saja "berhasil" tapi belum kelihatan perubahannya — tunggu dulu,
 karena memicu rollout beruntun dalam waktu singkat tampaknya memperparah
 antrean/keterlambatan ini, bukan mempercepat.
+
+## Merilis APK Android baru (unduhan publik di /api/download-apk)
+
+Situs publik punya kartu "Pasang Aplikasi Android" (halaman Beranda) yang
+mengunduh `public/masjid-asabri.apk` lewat `/api/download-apk` — pola
+`readFileSync` yang sama seperti gambar (lihat bagian "Bug ditemukan" di
+atas), supaya berkasnya ikut ter-bundle di Firebase App Hosting.
+
+**Kunci penandatanganan rilis** (`android/app/masjidasabri-release.keystore`
++ `android/keystore.properties`, kredensialnya) **sengaja TIDAK di-commit**
+ke git (lihat `android/.gitignore`) — siapa pun yang memegangnya bisa
+menandatangani APK "resmi" palsu. Simpan salinannya di tempat aman
+(mis. password manager tim) di luar repo; kalau hilang, jamaah yang
+sudah pasang APK versi lama harus copot dulu sebelum pasang versi baru
+(Android menolak update dengan tanda tangan berbeda dari yang terpasang).
+
+Langkah merilis APK baru setelah ada perubahan kode:
+
+```bash
+# 1. Pastikan android/keystore.properties & masjidasabri-release.keystore
+#    ada (generate sekali lewat keytool kalau proyek baru di-clone, lalu
+#    simpan baik-baik — lihat bagian di atas).
+
+# 2. Naikkan versionCode & versionName di android/app/build.gradle
+#    (samakan versionName dengan versi di package.json).
+
+# 3. Sinkron aset web terbaru ke proyek Android, lalu build rilis:
+npm run android:sync
+cd android
+JAVA_HOME=$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home ./gradlew assembleRelease
+
+# 4. Salin hasilnya ke public/, timpa yang lama:
+cp app/build/outputs/apk/release/app-release.apk ../public/masjid-asabri.apk
+cd ..
+
+# 5. Commit & deploy seperti biasa (git add, commit, push, lalu
+#    firebase apphosting:rollouts:create).
+```
+
+Jamaah yang sudah memasang APK lama tidak otomatis ter-update — mereka
+perlu mengunduh & memasang ulang dari halaman Beranda kapan pun mereka
+mau versi terbaru (tidak ada mekanisme auto-update di luar Play Store).

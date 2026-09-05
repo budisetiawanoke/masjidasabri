@@ -1,5 +1,16 @@
 apply plugin: 'com.android.application'
 
+// Kredensial penandatanganan rilis dibaca dari keystore.properties (di luar
+// git, lihat android/.gitignore) — TIDAK PERNAH ditulis langsung di
+// build.gradle ini karena file ini ikut ter-commit. Tanpa berkas ini
+// (mis. clone baru tanpa kredensial), build release akan gagal dengan
+// pesan jelas alih-alih diam-diam memakai signing debug.
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "org.masjidasabri.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,8 +18,10 @@ android {
         applicationId "org.masjidasabri.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        // Disamakan dengan versi aplikasi web di package.json — naikkan
+        // keduanya bersamaan tiap kali ada rilis APK baru (lihat CHANGELOG.md).
+        versionCode 3
+        versionName "0.3.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,10 +29,23 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }

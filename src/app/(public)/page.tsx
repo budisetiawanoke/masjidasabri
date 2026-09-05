@@ -17,6 +17,8 @@ import {
   HandHeart,
   Calendar,
   MessageSquareWarning,
+  Smartphone,
+  Download,
 } from "lucide-react";
 
 // Halaman ini membaca data langsung dari database (saldo, pengumuman,
@@ -67,6 +69,38 @@ export default async function HomePage() {
             Mengelola dana jamaah secara transparan, amanah, dan dapat diaudit terbuka.
           </p>
         </div>
+      </section>
+
+      {/* 1b. Unduh Aplikasi Android — jalur utama akses untuk jamaah/pengurus
+          yang lebih suka pengalaman seperti aplikasi (ikon di layar utama,
+          bukan bookmark browser). Tautan ini normal <a href> biasa (bukan
+          Link Next.js) karena memang harus memicu unduhan berkas nyata,
+          dibuka lewat browser biasa jamaah — bukan dari dalam WebView APK
+          itu sendiri, jadi tidak kena masalah unduhan WebView yang pernah
+          ditemukan di tempat lain (lihat DownloadLink.tsx). */}
+      <section className="mx-auto max-w-6xl px-4 sm:px-6">
+        <Card className="border border-border-subtle border-t-2 border-t-brand-gold-500 shadow-sm">
+          <CardBody className="p-4 flex items-center gap-4">
+            <div className="p-3 rounded-2xl bg-brand-green-100 text-brand-green-900 shrink-0">
+              <Smartphone className="h-6 w-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display text-sm font-bold text-brand-green-900">
+                Pasang Aplikasi Android
+              </p>
+              <p className="text-xs text-foreground/60 mt-0.5">
+                Akses lebih cepat lewat ikon di layar utama HP — tanpa perlu buka browser dulu.
+              </p>
+            </div>
+            <a
+              href="/api/download-apk"
+              className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-brand-gold-500 px-4 py-2.5 text-sm font-bold text-brand-green-950 hover:bg-brand-gold-400 transition-colors shadow-xs"
+            >
+              <Download className="h-4 w-4" />
+              Unduh
+            </a>
+          </CardBody>
+        </Card>
       </section>
 
       {/* 2. Compact Today Prayer Times Card */}
