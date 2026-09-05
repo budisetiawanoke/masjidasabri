@@ -31,8 +31,12 @@ test.describe("Alur Infaq/Sadaqah & Donasi", () => {
 
     await login(page, ACCOUNTS.superAdmin);
     await page.goto("/dashboard/infaq-donasi");
-    await page.getByLabel("Judul Kampanye Baru").fill(campaignTitle);
-    await page.getByRole("button", { name: "Tambah Kampanye" }).click();
+    // Form tambah kampanye tersembunyi di balik tombol ini (lihat
+    // CampaignManager di InfaqDonasiAdmin.tsx) — dipakai bersama untuk
+    // tambah & ubah kampanye, jadi harus dibuka dulu.
+    await page.getByRole("button", { name: "Tambah Kampanye Baru" }).click();
+    await page.getByLabel("Judul Kampanye").fill(campaignTitle);
+    await page.getByRole("button", { name: "Tambah Kampanye", exact: true }).click();
     await expect(page.getByText("Kampanye donasi ditambahkan.")).toBeVisible();
     await expect(page.getByText(campaignTitle)).toBeVisible();
 

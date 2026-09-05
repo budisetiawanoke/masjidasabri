@@ -41,6 +41,14 @@ export default async function DonasiPage() {
               <div key={c.id} className="border-b border-border-subtle/60 py-2.5 last:border-0">
                 <p className="text-sm font-bold text-brand-green-900">{c.title}</p>
                 {c.description && <p className="mt-0.5 text-xs text-foreground/70">{c.description}</p>}
+                {c.bankName || c.bankAccountNo ? (
+                  <p className="mt-1 text-xs text-brand-gold-700">
+                    Transfer khusus ke {c.bankName ?? "rekening"} {c.bankAccountNo ?? ""}
+                    {c.bankAccountName ? ` a.n. ${c.bankAccountName}` : ""}
+                  </p>
+                ) : (
+                  <p className="mt-1 text-xs text-foreground/50">Transfer ke rekening yayasan umum (lihat halaman Beranda)</p>
+                )}
               </div>
             ))}
           </CardBody>
@@ -63,10 +71,20 @@ export default async function DonasiPage() {
                 className="flex items-center justify-between gap-3 border-b border-border-subtle/60 py-2.5 last:border-0 -mx-1 px-1 rounded-lg hover:bg-brand-gold-50/60 transition-colors"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-brand-green-900">{r.title}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="truncate text-sm font-bold text-brand-green-900">{r.title}</p>
+                    {!r.isActive && (
+                      <span className="shrink-0 rounded-full bg-brand-terracotta-100 px-2 py-0.5 text-[10px] font-bold text-brand-terracotta-700">
+                        Berakhir
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-foreground/60">
                     {r.donorCount} donatur · {r.confirmedCount} dikonfirmasi
                   </p>
+                  {!r.isActive && r.closingNote && (
+                    <p className="mt-0.5 truncate text-xs italic text-foreground/50">{r.closingNote}</p>
+                  )}
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <p className="text-sm font-bold text-brand-gold-700">{formatRupiah(r.total)}</p>

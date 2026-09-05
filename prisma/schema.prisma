@@ -282,7 +282,23 @@ model DonationCampaign {
   id          String   @id @default(cuid())
   title       String
   description String?
-  isActive    Boolean  @default(true)
+
+  // Rekening tujuan transfer KHUSUS kampanye ini (opsional) — beberapa
+  // kampanye, mis. bantuan bencana, kadang pakai rekening berbeda dari
+  // rekening operasional yayasan (FoundationProfile.bankAccountNo).
+  // Kosong berarti jamaah memakai rekening yayasan umum (lihat halaman
+  // Beranda) — lihat src/app/(public)/donasi/page.tsx untuk fallback-nya.
+  bankName        String?
+  bankAccountNo   String?
+  bankAccountName String?
+
+  isActive  Boolean  @default(true)
+  // Keterangan pengurus untuk jamaah saat kampanye ditutup — mis. "Dana
+  // telah disalurkan ke korban bencana X pada tanggal Y". Diisi bersamaan
+  // dengan menonaktifkan kampanye (lihat closeCampaign() di
+  // src/server/donations/service.ts), tetap tampil di laporan publik
+  // kampanye walau kampanyenya sudah tidak aktif.
+  closingNote String?
   createdAt   DateTime @default(now())
 
   donations DonationRecord[]

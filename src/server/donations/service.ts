@@ -5,7 +5,12 @@ import { writeAuditLog } from "@/server/audit/log";
 import { saveOptionalProofImage } from "@/lib/upload";
 import { createTransaction } from "@/server/finance/service";
 import type { Role } from "@prisma/client";
-import type { InfaqRecordInput, DonationRecordInput, DonationCampaignInput } from "@/server/donations/schema";
+import type {
+  InfaqRecordInput,
+  DonationRecordInput,
+  DonationCampaignInput,
+  DonationCampaignUpdateInput,
+} from "@/server/donations/schema";
 
 type Actor = { id: string; role: Role };
 
@@ -98,22 +103,66 @@ export async function listCampaigns(actor: Actor) {
 export async function createCampaign(actor: Actor, input: DonationCampaignInput) {
   assertCan(actor.role, "MANAGE_DONATIONS");
   const campaign = await prisma.donationCampaign.create({
-    data: { title: input.title, description: input.description ?? null },
+    data: {
+      title: input.title,
+      description: input.description ?? null,
+      bankName: input.bankName ?? null,
+      bankAccountNo: input.bankAccountNo ?? null,
+      bankAccountName: input.bankAccountName ?? null,
+    },
   });
   await writeAuditLog({ actorId: actor.id, action: "DONATION_CAMPAIGN_CREATE", entityType: "DonationCampaign", entityId: campaign.id });
   return campaign;
 }
 
-export async function setCampaignActive(actor: Actor, id: string, isActive: boolean) {
+/** Mengubah judul, deskripsi, dan rekening tujuan kampanye yang sudah ada — TIDAK mengubah status aktif/nonaktif (lihat closeCampaign/reopenCampaign untuk itu). */
+export async function updateCampaign(actor: Actor, input: DonationCampaignUpdateInput) {
   assertCan(actor.role, "MANAGE_DONATIONS");
-  const campaign = await prisma.donationCampaign.update({ where: { id }, data: { isActive } });
+  const campaign = await prisma.donationCampaign.update({
+    where: { id: input.id },
+    data: {
+      title: input.title,
+      description: input.description ?? null,
+      bankName: input.bankName ?? null,
+      bankAccountNo: input.bankAccountNo ?? null,
+      bankAccountName: input.bankAccountName ?? null,
+    },
+  });
+  await writeAuditLog({ actorId: actor.id, action: "DONATION_CAMPAIGN_UPDATE", entityType: "DonationCampaign", entityId: campaign.id });
+  return campaign;
+}
+
+/**
+ * Menutup kampanye — WAJIB disertai keterangan untuk jamaah (lihat
+ * closeCampaignSchema di schema.ts), mis. penjelasan dana sudah
+ * disalurkan ke mana. Keterangan ini tetap tampil di laporan publik
+ * kampanye (src/app/(public)/donasi/laporan/[campaignId]) walau
+ * kampanyenya sudah tidak aktif — jamaah tetap bisa lihat riwayatnya.
+ */
+export async function closeCampaign(actor: Actor, id: string, closingNote: string) {
+  assertCan(actor.role, "MANAGE_DONATIONS");
+  const campaign = await prisma.donationCampaign.update({
+    where: { id },
+    data: { isActive: false, closingNote },
+  });
   await writeAuditLog({
     actorId: actor.id,
-    action: "DONATION_CAMPAIGN_TOGGLE",
+    action: "DONATION_CAMPAIGN_CLOSE",
     entityType: "DonationCampaign",
     entityId: id,
-    meta: { isActive },
+    meta: { closingNote },
   });
+  return campaign;
+}
+
+/** Membuka kembali kampanye yang sebelumnya ditutup — keterangan penutupan sebelumnya dihapus (kampanye aktif lagi, bukan lagi "sudah berakhir"). */
+export async function reopenCampaign(actor: Actor, id: string) {
+  assertCan(actor.role, "MANAGE_DONATIONS");
+  const campaign = await prisma.donationCampaign.update({
+    where: { id },
+    data: { isActive: true, closingNote: null },
+  });
+  await writeAuditLog({ actorId: actor.id, action: "DONATION_CAMPAIGN_REOPEN", entityType: "DonationCampaign", entityId: id });
   return campaign;
 }
 
@@ -180,6 +229,7 @@ export async function getDonationReportByCampaign() {
     id: c.id,
     title: c.title,
     isActive: c.isActive,
+    closingNote: c.closingNote,
     donorCount: c.donations.length,
     confirmedCount: c.donations.filter((d) => d.status === "DIKONFIRMASI").length,
     total: c.donations.reduce((sum, d) => sum + (d.amount ?? 0), 0),

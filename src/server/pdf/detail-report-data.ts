@@ -62,10 +62,15 @@ export async function loadDetailReport(
     case "donasi": {
       const detail = await getDonationCampaignDetail(id, year, month);
       if (!detail) return null;
+      const rekening =
+        detail.campaign.bankName || detail.campaign.bankAccountNo
+          ? `${detail.campaign.bankName ?? "-"} ${detail.campaign.bankAccountNo ?? "-"} a.n. ${detail.campaign.bankAccountName ?? "-"}`
+          : "rekening yayasan umum";
       return {
         title: `Laporan Donasi — ${detail.campaign.title}`,
         periodLabel: monthLabel(year, month),
         summary: [
+          { label: "Status Kampanye", value: detail.campaign.isActive ? "Aktif" : "Berakhir" },
           { label: "Total Donasi", value: formatRupiah(detail.total) },
           { label: "Jumlah Donatur", value: String(detail.count) },
         ],
@@ -84,8 +89,14 @@ export async function loadDetailReport(
           recordedAt: formatDateTime(r.recordedAt),
         })),
         emptyMessage: `Belum ada donasi untuk kampanye ini pada periode ${monthLabel(year, month)}.`,
-        disclaimer:
-          "Laporan ini mencakup seluruh donasi yang tercatat untuk kampanye ini pada periode tersebut, termasuk yang masih menunggu konfirmasi pengurus. Nominal diisi sendiri oleh donatur saat mendaftar, belum tentu sama dengan Laporan Keuangan resmi yang hanya menghitung transaksi kas yang sudah disahkan.",
+        disclaimer: [
+          `Laporan ini mencakup seluruh donasi yang tercatat untuk kampanye ini pada periode tersebut, termasuk yang masih menunggu konfirmasi pengurus. Nominal diisi sendiri oleh donatur saat mendaftar, belum tentu sama dengan Laporan Keuangan resmi yang hanya menghitung transaksi kas yang sudah disahkan. Rekening tujuan: ${rekening}.`,
+          !detail.campaign.isActive && detail.campaign.closingNote
+            ? `Keterangan penutupan kampanye dari pengurus: ${detail.campaign.closingNote}`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" "),
         filenameSlug: `donasi-${slugify(detail.campaign.title)}-${year}-${String(month).padStart(2, "0")}`,
       };
     }
