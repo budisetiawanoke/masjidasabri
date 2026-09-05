@@ -6,8 +6,8 @@ import { FieldGroup, Input, Select } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { registerZakatAction, registerQurbanAction } from "@/app/(public)/zakat-kurban/actions";
 import { initialActionState } from "@/lib/action-state";
-import { ReceiptDownloadLink } from "@/components/public/ReceiptDownloadLink";
-import { Send, CheckCircle2, AlertTriangle, Heart, Camera } from "lucide-react";
+import { DownloadLink } from "@/components/public/DownloadLink";
+import { Send, CheckCircle2, AlertTriangle, Heart, Camera, FileDown } from "lucide-react";
 
 const PROOF_INPUT_CLASS =
   "mt-1 block w-full text-sm text-foreground/80 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-green-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-brand-green-900 hover:file:bg-brand-green-100/70";
@@ -31,10 +31,13 @@ export function RegisterZakatForm() {
               <span>{state.message}</span>
             </div>
             {state.receiptUrl && (
-              <ReceiptDownloadLink
-                url={state.receiptUrl}
+              <DownloadLink
+                href={state.receiptUrl}
                 className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-green-700/40 bg-brand-green-50/60 p-2.5 text-sm font-bold text-brand-green-900 hover:bg-brand-green-50 transition-colors"
-              />
+              >
+                <FileDown className="h-4 w-4 text-brand-green-700" />
+                Unduh Bukti Bayar
+              </DownloadLink>
             )}
           </div>
         )}
@@ -110,10 +113,13 @@ export function RegisterQurbanForm() {
               <span>{state.message}</span>
             </div>
             {state.receiptUrl && (
-              <ReceiptDownloadLink
-                url={state.receiptUrl}
+              <DownloadLink
+                href={state.receiptUrl}
                 className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-green-700/40 bg-brand-green-50/60 p-2.5 text-sm font-bold text-brand-green-900 hover:bg-brand-green-50 transition-colors"
-              />
+              >
+                <FileDown className="h-4 w-4 text-brand-green-700" />
+                Unduh Bukti Bayar
+              </DownloadLink>
             )}
           </div>
         )}

@@ -6,8 +6,8 @@ import { FieldGroup, Input, Select } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { submitDonationAction } from "@/app/(public)/donasi/actions";
 import { initialActionState } from "@/lib/action-state";
-import { ReceiptDownloadLink } from "@/components/public/ReceiptDownloadLink";
-import { Send, CheckCircle2, AlertTriangle, Camera } from "lucide-react";
+import { DownloadLink } from "@/components/public/DownloadLink";
+import { Send, CheckCircle2, AlertTriangle, Camera, FileDown } from "lucide-react";
 
 type Campaign = { id: string; title: string };
 
@@ -36,10 +36,13 @@ export function DonationForm({ campaigns }: { campaigns: Campaign[] }) {
               <span>{state.message}</span>
             </div>
             {state.receiptUrl && (
-              <ReceiptDownloadLink
-                url={state.receiptUrl}
+              <DownloadLink
+                href={state.receiptUrl}
                 className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-gold-500/60 bg-brand-gold-50/60 p-3 text-sm font-bold text-brand-green-900 hover:bg-brand-gold-50 transition-colors"
-              />
+              >
+                <FileDown className="h-4 w-4 text-brand-gold-600" />
+                Unduh Bukti Bayar
+              </DownloadLink>
             )}
           </div>
         )}

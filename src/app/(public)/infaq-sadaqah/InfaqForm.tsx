@@ -6,8 +6,8 @@ import { FieldGroup, Input, Select } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { submitInfaqAction } from "@/app/(public)/infaq-sadaqah/actions";
 import { initialActionState } from "@/lib/action-state";
-import { ReceiptDownloadLink } from "@/components/public/ReceiptDownloadLink";
-import { Send, CheckCircle2, AlertTriangle, Camera } from "lucide-react";
+import { DownloadLink } from "@/components/public/DownloadLink";
+import { Send, CheckCircle2, AlertTriangle, Camera, FileDown } from "lucide-react";
 
 export function InfaqForm() {
   const [state, formAction, pending] = useActionState(submitInfaqAction, initialActionState);
@@ -22,10 +22,13 @@ export function InfaqForm() {
               <span>{state.message}</span>
             </div>
             {state.receiptUrl && (
-              <ReceiptDownloadLink
-                url={state.receiptUrl}
+              <DownloadLink
+                href={state.receiptUrl}
                 className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-green-700/40 bg-brand-green-50/60 p-3 text-sm font-bold text-brand-green-900 hover:bg-brand-green-50 transition-colors"
-              />
+              >
+                <FileDown className="h-4 w-4 text-brand-green-700" />
+                Unduh Bukti Bayar
+              </DownloadLink>
             )}
           </div>
         )}

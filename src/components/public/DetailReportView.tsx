@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Download, FileSpreadsheet, ArrowLeft } from "lucide-react";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
+import { DownloadLink } from "@/components/public/DownloadLink";
 import type { LoadedDetailReport } from "@/server/pdf/detail-report-data";
 
 /**
@@ -44,20 +45,20 @@ export function DetailReportView({
             <p className="mt-0.5 text-xs text-foreground/60">Periode: {report.periodLabel}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <a
+            <DownloadLink
               href={`/api/laporan-detail/${downloadKind}/${downloadId}/csv?${query}`}
               className="flex items-center gap-1.5 rounded-xl border border-emerald-700/30 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-900 hover:bg-emerald-100 transition-colors shadow-xs"
             >
               <FileSpreadsheet className="h-3.5 w-3.5" aria-hidden />
               Unduh Excel / CSV
-            </a>
-            <a
+            </DownloadLink>
+            <DownloadLink
               href={`/api/laporan-detail/${downloadKind}/${downloadId}/pdf?${query}`}
               className="flex items-center gap-1.5 rounded-xl border border-brand-green-900/30 bg-brand-green-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-green-700 transition-colors shadow-xs"
             >
               <Download className="h-3.5 w-3.5" aria-hidden />
               Unduh PDF
-            </a>
+            </DownloadLink>
           </div>
         </CardHeader>
 
